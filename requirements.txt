@@ -4,3 +4,4 @@ twisted>=22.10.0
 pyopenssl>=23.0.0
 service_identity>=21.1.0
 requests>=2.28.0
+colorama

@@ -224,7 +224,7 @@ class SMDP:
                     b"scp03t"
                 )
             
-            # Prepare BPP (Bound Profile Package)
+            # Prepare Profile Package
             with TimingContext("BPP Creation"):
                 profile_data = self.profiles[profile_id]
                 

@@ -95,17 +95,30 @@ def print_connectivity_report(results):
     
     print("\n===========================")
 
-def diagnose_system():
-    """Run a full diagnostic on the M2M RSP system"""
+def diagnose_system(return_results=False):
+    """
+    Run a full diagnostic on the M2M RSP system
+    
+    Args:
+        return_results (bool): If True, return the diagnostics results instead of just printing them
+        
+    Returns:
+        dict: Results of the diagnostics if return_results is True, otherwise None
+    """
     print("Running M2M RSP system diagnostics...")
     
     # Check basic connectivity
     results = check_connectivity()
-    print_connectivity_report(results)
+    
+    # Only print the report if not just returning results
+    if not return_results:
+        print_connectivity_report(results)
     
     # Additional checks could be added here
     
-    return results
+    if return_results:
+        return results
+    return None
 
 if __name__ == "__main__":
     # Can be run standalone for diagnostics
