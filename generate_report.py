@@ -500,17 +500,23 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
         if step not in ordered_timing and step != "Total Execution":
             ordered_timing[step] = time_value
     
-    # Identify bottlenecks (steps taking more than 20% of total time)
-    total_time = timing_data.get("Total Execution", sum(ordered_timing.values()))
-    bottleneck_threshold = total_time * 0.2  # 20% threshold
+    # Calculate total process time
+    total_process_time = sum(ordered_timing.values())
     
-    # Add rows to table
+    # Identify bottlenecks (steps taking more than 20% of total time)
+    bottleneck_steps = []
+    bottleneck_threshold_percent = total_process_time * 0.2  # 20% threshold
+    
     for step, time_taken in ordered_timing.items():
-        is_bottleneck = time_taken > bottleneck_threshold
+        is_bottleneck = time_taken > bottleneck_threshold_percent
         bottleneck_text = "Yes" if is_bottleneck else "No"
         timing_table_data.append([step, f"{time_taken:.3f}", bottleneck_text])
+        
+        if is_bottleneck:
+            bottleneck_steps.append((step, time_taken))
     
     # Add total time
+    total_time = timing_data.get("Total Execution", total_process_time)
     timing_table_data.append(['Total Process Time', f"{total_time:.3f}", ""])
     
     timing_table = Table(timing_table_data, colWidths=[doc.width*0.6, doc.width*0.2, doc.width*0.2])
@@ -538,6 +544,9 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
     elements.append(timing_table)
     elements.append(Spacer(1, 0.3*inch))
     
+    # Add bottleneck analysis
+    elements.append(Paragraph("2.1 Traditional Bottleneck Analysis", heading2Style))
+    
     # Add bottleneck analysis text
     if bottleneck_steps:
         bottleneck_text = """
@@ -549,7 +558,7 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
             percentage = (time_taken / total_process_time) * 100
             elements.append(Paragraph(f"• {step}: {time_taken:.3f}s ({percentage:.1f}% of total time)", normalStyle))
     else:
-        elements.append(Paragraph("No significant bottlenecks were identified in the process.", normalStyle))
+        elements.append(Paragraph("No significant bottlenecks were identified in the process using percentage-based analysis.", normalStyle))
     
     elements.append(Spacer(1, 0.3*inch))
     
@@ -558,7 +567,7 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
         elements.append(Paragraph("2.2 Enhanced Bottleneck Analysis", heading2Style))
         
         bottleneck_analysis_text = f"""
-        The following steps exceeded the bottleneck threshold of {bottleneck_threshold}s:
+        The following steps exceeded the fixed bottleneck threshold of {bottleneck_threshold}s:
         """
         elements.append(Paragraph(bottleneck_analysis_text, normalStyle))
         
@@ -665,35 +674,82 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
     
     elements.append(diag_table)
     
-    # Add HTTP response details if available
-    if diagnostics:
-        elements.append(Paragraph("3.2 HTTP Response Details", heading2Style))
+    # Add enhanced timing data visualization if available
+    if enhanced_timing_data and 'processes' in enhanced_timing_data:
+        elements.append(Paragraph("3.2 Detailed Process Timeline", heading2Style))
         
-        http_table_data = [['Component', 'HTTP Status', 'Error']]
+        process_table_data = [['Process', 'Entity', 'Duration (s)', 'Status']]
         
-        for port, service_name in [(8001, "SM-DP"), (8002, "SM-SR"), (8003, "eUICC")]:
-            if port in diagnostics:
-                status_code = diagnostics[port].get("http_response", "N/A")
-                error = diagnostics[port].get("error", "None")
-                http_table_data.append([service_name, str(status_code), error])
+        # Sort processes by timestamp to show them in execution order
+        sorted_processes = sorted(enhanced_timing_data['processes'], 
+                                  key=lambda x: x.get('timestamp', ''))
         
-        http_table = Table(http_table_data, colWidths=[doc.width*0.3, doc.width*0.3, doc.width*0.4])
-        http_table.setStyle(TableStyle([
+        for process in sorted_processes:
+            process_name = process.get('name', 'Unknown')
+            entity = process.get('entity', 'Unknown')
+            duration = process.get('duration', 0)
+            status = process.get('status', 'unknown')
+            
+            # Color code status
+            status_color = colors.black
+            if status == 'success':
+                status_color = colors.green
+            elif status in ['failure', 'error', 'timeout']:
+                status_color = colors.red
+            elif status == 'warning':
+                status_color = colors.orange
+            
+            process_table_data.append([
+                process_name,
+                entity,
+                f"{duration:.3f}",
+                status
+            ])
+        
+        process_table = Table(process_table_data, colWidths=[doc.width*0.4, doc.width*0.2, doc.width*0.2, doc.width*0.2])
+        process_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
             ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('ALIGN', (1, 1), (1, -1), 'CENTER'),
+            ('ALIGN', (2, 1), (2, -1), 'RIGHT'),
+            ('ALIGN', (3, 1), (3, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ]))
         
-        elements.append(http_table)
+        # Highlight bottleneck rows
+        for i, process in enumerate(sorted_processes, 1):
+            if process.get('duration', 0) > bottleneck_threshold:
+                process_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, i), (-1, i), colors.mistyrose),
+                ]))
+            
+            # Color status text
+            status = process.get('status', 'unknown')
+            if status == 'success':
+                process_table.setStyle(TableStyle([
+                    ('TEXTCOLOR', (3, i), (3, i), colors.green),
+                ]))
+            elif status in ['failure', 'error', 'timeout']:
+                process_table.setStyle(TableStyle([
+                    ('TEXTCOLOR', (3, i), (3, i), colors.red),
+                ]))
+            elif status == 'warning':
+                process_table.setStyle(TableStyle([
+                    ('TEXTCOLOR', (3, i), (3, i), colors.orange),
+                ]))
+        
+        elements.append(process_table)
     
     # Build the PDF
-    doc.build(elements)
-    print(f"PDF report generated successfully: {output_file}")
-    return output_file
+    try:
+        doc.build(elements)
+        print(f"PDF report generated successfully: {output_file}")
+        return output_file
+    except Exception as e:
+        print(f"Error generating PDF report: {e}")
+        raise
 
 if __name__ == "__main__":
     create_report() 
