@@ -1,5 +1,7 @@
 # M2M Remote SIM Provisioning Implementation
 
+Eraser: [Documentation](https://app.eraser.io/workspace/ihuLHEN4p22TXWvbk9Th?origin=share)
+
 A comprehensive implementation of Machine-to-Machine Remote SIM Provisioning (M2M RSP) as defined by GSMA SGP.02 specifications, featuring proper cryptographic operations and secure communication channels.
 
 ## Overview
