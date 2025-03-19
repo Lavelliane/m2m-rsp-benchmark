@@ -1,0 +1,12 @@
+# Certificate files
+certs/*.pem
+
+# Ignore all .pem files in any subdirectory
+**/*.pem
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+

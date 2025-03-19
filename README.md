@@ -1,128 +1,126 @@
-# M2M Remote SIM Provisioning Protocol Implementation
+# M2M Remote SIM Provisioning Implementation
 
-A Python implementation of the GSMA M2M Remote SIM Provisioning (RSP) Protocol for embedded Universal Integrated Circuit Cards (eUICCs). This project simulates the key phases of the M2M RSP protocol with timing metrics for benchmarking purposes.
+A comprehensive implementation of Machine-to-Machine Remote SIM Provisioning (M2M RSP) as defined by GSMA SGP.02 specifications, featuring proper cryptographic operations and secure communication channels.
 
-## Overview
-
-M2M Remote SIM Provisioning enables the remote provisioning and management of embedded SIM cards (eUICC) in IoT and M2M devices. This implementation follows the GSMA specification and includes the following protocol phases:
-
-1. **ISDP Creation**: Creation of the Issuer Security Domain - Profile (ISD-P) on the eUICC
-2. **Key Establishment**: Secure key exchange between SM-DP and eUICC 
-3. **Profile Download & Installation**: Secure transmission and installation of the operator profile using ES8 interface and SCP03t
-
-## Repository Structure
+## Project Structure
 
 ```
-├── app.py                             # Main application and common classes
-├── isdp_creation.py                   # ISD-P Creation process implementation
-├── key_establishment.py               # Key Establishment Protocol implementation
-├── profile_download_installation.py   # Profile Download & Installation implementation
-├── benchmark.py                       # Performance benchmarking utilities
-├── rsp_benchmark_results.txt          # Sample benchmark results
-└── README.md                          # This file
+m2m-benchmark/
+│
+├── certs/              # Certificate management
+│   ├── root_ca.py      # Root CA implementation
+│   └── __init__.py
+│
+├── crypto/             # Cryptographic operations
+│   ├── ecdh.py         # ECDH key agreement
+│   ├── kdf.py          # NIST SP 800-56C Rev 2 KDF
+│   ├── psk_tls.py      # PSK-TLS implementation
+│   └── __init__.py
+│
+├── entities/           # RSP entities
+│   ├── euicc.py        # eUICC implementation
+│   ├── sm_dp.py        # SM-DP implementation
+│   ├── sm_sr.py        # SM-SR implementation
+│   └── __init__.py
+│
+├── utils/              # Utilities
+│   ├── timing.py       # Performance measurement
+│   └── __init__.py
+│
+└── main.py             # Main application
 ```
 
-## Protocol Entities
+## Cryptographic Components
 
-The implementation simulates the following entities:
+1. **Certificate Management**
+   - Self-signed Root CA issuing certificates for SM-DP and SM-SR
 
-- **SM-DP** (Subscription Manager - Data Preparation): Securely prepares profiles and manages their download to eUICCs
-- **SM-SR** (Subscription Manager - Secure Routing): Routes messages securely between SM-DP and eUICC
-- **eUICC** (embedded Universal Integrated Circuit Card): The secure element in the device that receives and installs profiles
+2. **TLS Communication**
+   - Secure communication between SM-DP and SM-SR using certificates
 
-## Security Features
+3. **PSK-TLS Communication**
+   - Secure communication between SM-SR and eUICC using pre-shared keys
 
-The implementation uses:
-- ECDSA for digital signatures
-- ECDH for key agreement
-- NIST SP 800-56C Rev 2 for key derivation functions
-- Secure Channel Protocol 03 for APDU transmission (SCP03t)
-- ES8 interface for profile management
+4. **ECDH Key Agreement**
+   - Elliptic Curve Diffie-Hellman for secure key establishment
+   - Uses NIST P-256 curve as specified in GSMA SGP.02
 
-## Dependencies
+5. **NIST KDF**
+   - Key Derivation Function based on NIST SP 800-56C Rev 2
+   - Used to derive encryption and MAC keys from shared secrets
 
-- Python 3.7+
-- cryptography
-- secrets
-- hashlib
-- statistics (for benchmarking)
+## M2M RSP Entities
 
-Install dependencies using:
-```bash
-pip install cryptography
-```
+1. **Root CA**
+   - Issues certificates for SM-DP and SM-SR
+   - Serves as the trust anchor for the system
 
-## Usage
+2. **SM-DP (Subscription Manager - Data Preparation)**
+   - Prepares subscription profiles
+   - Communicates with SM-SR over TLS
+   - Implements key establishment protocol with eUICC
+   - Provides profile download functionality
 
-### Running the Protocol
+3. **SM-SR (Subscription Manager - Secure Routing)**
+   - Routes messages between SM-DP and eUICC
+   - Communicates with SM-DP over TLS
+   - Communicates with eUICC over PSK-TLS
+   - Manages ISD-P creation and profile installation
 
-```bash
-python app.py
-```
+4. **eUICC (embedded Universal Integrated Circuit Card)**
+   - Receives and installs profiles
+   - Communicates with SM-SR over PSK-TLS
+   - Implements key establishment protocol
+   - Manages installed profiles and ISD-Ps
 
-This will execute all three phases of the protocol in sequence:
-1. ISDP Creation 
-2. Key Establishment
-3. Profile Download and Installation
+## Protocol Implementation
 
-### Running Benchmarks
+The implementation follows the GSMA SGP.02 specifications for M2M RSP:
 
-```bash
-python benchmark.py
-```
+1. **PSK Establishment**
+   - Initial registration of eUICC with SM-SR
+   - Establishment of pre-shared key for secure communication
 
-This will run the protocol for multiple iterations and report average timing statistics for each phase and operation. Results will be saved to `rsp_benchmark_results.txt`.
+2. **ISD-P Creation**
+   - Creation of Issuer Security Domain - Profile on the eUICC
+   - Resource allocation and preparation for profile installation
 
-## Protocol Flow
+3. **Key Establishment**
+   - ECDH key agreement between SM-DP and eUICC through SM-SR
+   - Generation of session keys for secure channel protocol
 
-1. **ISDP Creation**:
-   - SM-DP allocates resources for the profile
-   - SM-DP prepares and sends ISDP creation request
-   - eUICC processes the request and creates the ISDP
-   - SM-DP confirms and registers the ISDP
+4. **Profile Download and Installation**
+   - Secure download of profile from SM-DP to eUICC through SM-SR
+   - Profile installation in the ISD-P on the eUICC
 
-2. **Key Establishment**:
-   - Certificate exchange between SM-DP and eUICC
-   - Random challenge generation
-   - Ephemeral key generation and exchange
-   - Shared secret computation and key derivation
+## Running the Application
 
-3. **Profile Download and Installation**:
-   - SM-DP prepares the profile package
-   - SM-DP creates the Bound Profile Package (BPP) using SCP03t
-   - Profile is downloaded in segments using ES8 interface and SCP03t
-   - eUICC installs and enables the downloaded profile
+1. Install dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
 
-## Implementation Notes
+2. Run the application:
+   ```
+   python main.py
+   ```
 
-This is a simulation implementation focused on benchmarking the protocol performance. It includes:
+The application will:
+1. Start the Root CA, SM-DP, SM-SR, and eUICC
+2. Register the eUICC with the SM-SR
+3. Prepare a profile at the SM-DP
+4. Establish secure keys using ECDH
+5. Install the profile on the eUICC
+6. Create an ISD-P for the profile
+7. Display the status of all components
 
-- Timing measurements for each protocol phase and operation
-- Simulated cryptographic operations with realistic timing characteristics
-- End-to-end protocol flow according to GSMA specifications
+## Performance Measurement
 
-The implementation simplifies some aspects of the real protocol while maintaining the core security and procedural elements.
+The application includes a timing utility for measuring the performance of cryptographic operations and protocol steps. The timing data is displayed during execution.
 
-## Benchmark Results
+## Security Considerations
 
-Sample benchmark results from 100 iterations show:
-
-- **Average Total Protocol Time**: ~0.46 seconds
-- **ISDP Creation**: ~0.46 seconds
-- **Key Establishment**: ~0.41 seconds
-- **Profile Download & Installation**: ~0.41 seconds
-
-Most time-consuming operations:
-1. Profile Installation in ISD-P: ~0.19 seconds
-2. Segmented Profile Download: ~0.16 seconds
-3. Profile Enabling: ~0.05 seconds
-
-For detailed benchmark results, see the `rsp_benchmark_results.txt` file.
-
-## License
-
-MIT License
-
-## Contributing
-
-Contributions to improve the protocol implementation or benchmarking methodology are welcome. 
+- In a production environment, proper certificate validation should be implemented
+- The PSK should be delivered securely to the eUICC
+- Additional security measures like mutual authentication should be included
+- Key rotation and certificate revocation should be implemented 
