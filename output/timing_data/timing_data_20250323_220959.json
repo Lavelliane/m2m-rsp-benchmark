@@ -1,0 +1,100 @@
+{
+  "metadata": {
+    "start_time": "2025-03-23 22:09:33.120485",
+    "end_time": "2025-03-23 22:09:59.410549",
+    "total_duration": 26.290064,
+    "timestamp": "2025-03-23 22:09:32",
+    "version": "1.0"
+  },
+  "processes": [
+    {
+      "name": "eUICC Registration",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:33.185173",
+      "entity": "eUICC",
+      "status": "failure",
+      "details": {
+        "target": "SM-SR",
+        "type": "EIS_registration"
+      }
+    },
+    {
+      "name": "ISD-P Creation",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:34.205963",
+      "entity": "SM-SR",
+      "status": "failure",
+      "details": {
+        "isdp_aid": null,
+        "memory": 256
+      }
+    },
+    {
+      "name": "ECDH Key Establishment",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:35.284296",
+      "entity": "eUICC",
+      "status": "success",
+      "details": {
+        "method": "ECDH",
+        "target": "SM-DP"
+      }
+    },
+    {
+      "name": "Profile Preparation",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:56.319377",
+      "entity": "SM-DP",
+      "status": "success",
+      "details": {
+        "profile_type": "telecom",
+        "iccid": "8901234567890123456"
+      }
+    },
+    {
+      "name": "Profile Download and Installation",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:57.323565",
+      "entity": "eUICC",
+      "status": "failure",
+      "details": {
+        "profile_id": "8901234567890123456",
+        "type": "installation"
+      }
+    },
+    {
+      "name": "Profile Enabling",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:58.345398",
+      "entity": "SM-SR",
+      "status": "warning",
+      "details": {
+        "profile_id": "8901234567890123456",
+        "euicc_id": "89012345678901234567"
+      }
+    },
+    {
+      "name": "Status Check",
+      "duration": 0,
+      "timestamp": "2025-03-23 22:09:59.384412",
+      "entity": "SYSTEM",
+      "status": "warning",
+      "details": {
+        "connectivity": {
+          "SM-DP": true,
+          "SM-SR": true,
+          "eUICC": true
+        },
+        "profile_installed": false
+      }
+    }
+  ],
+  "bottlenecks": [],
+  "summary": {
+    "total_processes": 7,
+    "bottleneck_count": 0,
+    "average_duration": 0.0,
+    "max_duration": 0,
+    "min_duration": 0
+  }
+}

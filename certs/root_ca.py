@@ -7,7 +7,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives.asymmetric import ec, padding
 import datetime
 import os
 
@@ -17,18 +17,17 @@ class RootCA:
     def __init__(self):
         # Generate root CA key pair
         with TimingContext("Root CA Key Generation"):
-            self.private_key = rsa.generate_private_key(
-                public_exponent=65537,
-                key_size=2048,
+            self.private_key = ec.generate_private_key(
+                curve=ec.SECP256R1(),
                 backend=default_backend()
             )
         
         # Generate self-signed certificate
         with TimingContext("Root CA Certificate Generation"):
             subject = issuer = x509.Name([
-                x509.NameAttribute(NameOID.COUNTRY_NAME, u"US"),
-                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"CA"),
-                x509.NameAttribute(NameOID.LOCALITY_NAME, u"San Francisco"),
+                x509.NameAttribute(NameOID.COUNTRY_NAME, u"SK"),
+                x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, u"Seoul"),
+                x509.NameAttribute(NameOID.LOCALITY_NAME, u"Seoul"),
                 x509.NameAttribute(NameOID.ORGANIZATION_NAME, u"M2M RSP Root CA"),
                 x509.NameAttribute(NameOID.COMMON_NAME, u"M2M RSP Root CA"),
             ])

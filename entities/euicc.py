@@ -390,10 +390,10 @@ class EUICC:
             print(f"eUICC: Registration response received from SM-SR")
             data = response.json()
             if data.get("status") == "success":
-                # Store the PSK
+                # Store the PSK (AES-128 key)
                 self.psk = base64.b64decode(data.get("psk", ""))
                 self.sm_sr_id = data.get("smsrId")
-                print(f"eUICC: Successfully registered with SM-SR and stored PSK")
+                print(f"eUICC: Successfully registered with SM-SR and stored AES-128 PSK")
                 return True
             else:
                 print(f"eUICC: Registration failed: {data.get('message', 'Unknown error')}")

@@ -14,6 +14,7 @@ from crypto.psk_tls import PSK_TLS
 from crypto.ecdh import ECDH
 from utils.timing import TimingContext
 from crypto.scp03t import SCP03t
+from OpenSSL import SSL
 
 class SMSR:
     def __init__(self, host="localhost", port=8002, ca=None):
@@ -145,7 +146,6 @@ class SMSR:
                     
                 print(f"SM-SR: Using ISD-P AID: {isdp_aid}")
                 
-                # We'll use PSK-TLS instead of SCP03t for simplicity in this demo
                 try:
                     # Encrypt profile data using PSK-TLS
                     encrypted_data = PSK_TLS.encrypt(profile, psk)
@@ -312,8 +312,8 @@ class SMSR:
                         "message": "eUICC does not support PSK-TLS"
                     })
                 
-                # Generate PSK for this eUICC
-                psk = os.urandom(32)  # 256-bit PSK
+                # Generate PSK using AES-128 (16 bytes instead of 32)
+                psk = os.urandom(16)  # 128-bit AES key
                 
                 # Store eUICC entry with PSK and EIS
                 self.euiccs[euicc_id] = {
@@ -326,7 +326,7 @@ class SMSR:
                 # For backward compatibility
                 self.psk_keys[euicc_id] = psk
                 
-                print(f"SM-SR: Successfully registered eUICC {euicc_id}")
+                print(f"SM-SR: Successfully registered eUICC {euicc_id} with AES-128 PSK")
                 
                 # Return PSK to eUICC
                 return json.dumps({
@@ -582,18 +582,10 @@ class SMSR:
                 ))
     
     def run(self):
-        # Setup SSL context with our certificate and private key
-        self.get_certificate_from_ca()
-        
-        # Create context factory for TLS
-        contextFactory = ssl.DefaultOpenSSLContextFactory(
-            "certs/smsr_key.pem", 
-            "certs/smsr_cert.pem"
-        )
-        
-        # Run the server
-        reactor.listenSSL(self.port, Site(self.app.resource()), contextFactory)
-        print(f"SM-SR running on https://{self.host}:{self.port}")
+        # Skip SSL for now and just use HTTP for testing
+        print(f"SM-SR: Starting HTTP server on port {self.port}...")
+        reactor.listenTCP(self.port, Site(self.app.resource()))
+        print(f"SM-SR running on http://{self.host}:{self.port}")
         
         # We don't call reactor.run() here, as it will be called by the main script
 

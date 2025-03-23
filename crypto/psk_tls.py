@@ -35,12 +35,21 @@ class PSK_TLS:
                 data_bytes = data.encode()
             else:
                 data_bytes = data
+            
+            # Verify key length - supports both AES-128 (16 bytes) and AES-256 (32 bytes)
+            if len(psk) != 16 and len(psk) != 32:
+                raise ValueError(f"Invalid PSK length: {len(psk)} bytes. Must be 16 bytes (AES-128) or 32 bytes (AES-256)")
+            
+            if len(psk) == 16:
+                key_type = "AES-128"
+            else:
+                key_type = "AES-256"
                 
             # Generate a random IV
             iv = os.urandom(16)
             
             # Derive encryption key and MAC key from PSK
-            with TimingContext("PSK Key Derivation"):
+            with TimingContext(f"PSK Key Derivation ({key_type})"):
                 # In real TLS-PSK, this would use TLS PRF
                 # Here we use PBKDF2 as a simplified approach
                 kdf = PBKDF2HMAC(
@@ -66,14 +75,15 @@ class PSK_TLS:
             padded_data = padder.update(data_bytes) + padder.finalize()
             
             # Encrypt with AES-CBC
-            with TimingContext("AES Encryption"):
+            with TimingContext(f"{key_type} Encryption"):
                 cipher = Cipher(algorithms.AES(encryption_key), modes.CBC(iv))
                 encryptor = cipher.encryptor()
                 ciphertext = encryptor.update(padded_data) + encryptor.finalize()
             
             result = {
                 "iv": base64.b64encode(iv).decode(),
-                "data": base64.b64encode(ciphertext).decode()
+                "data": base64.b64encode(ciphertext).decode(),
+                "key_type": key_type  # Include information about the key type used
             }
             
             # Add MAC if requested
@@ -104,12 +114,18 @@ class PSK_TLS:
             iv = base64.b64decode(encrypted_data.get("iv", ""))
             ciphertext = base64.b64decode(encrypted_data.get("data", ""))
             
+            # Verify key length - supports both AES-128 (16 bytes) and AES-256 (32 bytes)
+            if len(psk) != 16 and len(psk) != 32:
+                raise ValueError(f"Invalid PSK length: {len(psk)} bytes. Must be 16 bytes (AES-128) or 32 bytes (AES-256)")
+            
+            key_type = "AES-128" if len(psk) == 16 else "AES-256"
+            
             # Verify MAC if requested and present
             if verify_mac and "mac" in encrypted_data:
                 mac = base64.b64decode(encrypted_data.get("mac", ""))
                 
                 # Derive MAC key from PSK
-                with TimingContext("PSK Key Derivation for MAC"):
+                with TimingContext(f"PSK Key Derivation for MAC ({key_type})"):
                     kdf = PBKDF2HMAC(
                         algorithm=hashes.SHA256(),
                         length=32,
@@ -128,7 +144,7 @@ class PSK_TLS:
                         raise ValueError("MAC verification failed")
             
             # Derive encryption key from PSK
-            with TimingContext("PSK Key Derivation for Decryption"):
+            with TimingContext(f"PSK Key Derivation for Decryption ({key_type})"):
                 kdf = PBKDF2HMAC(
                     algorithm=hashes.SHA256(),
                     length=32,
@@ -138,7 +154,7 @@ class PSK_TLS:
                 encryption_key = kdf.derive(psk)
             
             # Decrypt with AES-CBC
-            with TimingContext("AES Decryption"):
+            with TimingContext(f"{key_type} Decryption"):
                 cipher = Cipher(algorithms.AES(encryption_key), modes.CBC(iv))
                 decryptor = cipher.decryptor()
                 decrypted_padded = decryptor.update(ciphertext) + decryptor.finalize()
