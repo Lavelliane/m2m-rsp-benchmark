@@ -1,0 +1,123 @@
+{
+  "metadata": {
+    "start_time": "2025-03-24 00:34:29.761547",
+    "end_time": "2025-03-24 00:34:56.079092",
+    "total_duration": 26.317545,
+    "timestamp": "2025-03-24 00:34:29",
+    "version": "1.0"
+  },
+  "processes": [
+    {
+      "name": "eUICC Registration",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:29.837225",
+      "entity": "eUICC",
+      "status": "success",
+      "details": {
+        "target": "SM-SR",
+        "type": "EIS_registration"
+      }
+    },
+    {
+      "name": "ISD-P Creation",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:30.864264",
+      "entity": "SM-SR",
+      "status": "success",
+      "details": {
+        "isdp_aid": "A0000005591010A9448BF7",
+        "memory": 256
+      }
+    },
+    {
+      "name": "ECDH Key Establishment",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:31.898856",
+      "entity": "eUICC",
+      "status": "success",
+      "details": {
+        "method": "ECDH",
+        "target": "SM-DP"
+      }
+    },
+    {
+      "name": "Profile Preparation",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:42.937732",
+      "entity": "SM-DP",
+      "status": "success",
+      "details": {
+        "profile_type": "telecom",
+        "iccid": "8901234567890123456"
+      }
+    },
+    {
+      "name": "Profile Download and Installation",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:43.986487",
+      "entity": "eUICC",
+      "status": "success",
+      "details": {
+        "profile_id": "8901234567890123456",
+        "type": "installation"
+      }
+    },
+    {
+      "name": "Profile Enabling",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:55.043523",
+      "entity": "SM-SR",
+      "status": "success",
+      "details": {
+        "profile_id": "8901234567890123456",
+        "euicc_id": "89012345678901234567"
+      }
+    },
+    {
+      "name": "Status Check",
+      "duration": 0.0,
+      "timestamp": "2025-03-24 00:34:56.078854",
+      "entity": "SYSTEM",
+      "status": "success",
+      "details": {
+        "connectivity": {
+          "SM-DP": true,
+          "SM-SR": true,
+          "eUICC": true
+        },
+        "profile_installed": true
+      }
+    }
+  ],
+  "bottlenecks": [],
+  "summary": {
+    "total_processes": 7,
+    "bottleneck_count": 0,
+    "average_duration": 0.0,
+    "max_duration": 0.0,
+    "min_duration": 0.0
+  },
+  "detailed_measurements": {
+    "eUICC Registration Process": 0.021053917007520795,
+    "ISD-P Creation Process": 0.02197200001683086,
+    "ECDH Key Establishment Process": 0.03356970800086856,
+    "ECDH Key Generation": 0.00019687501480802894,
+    "SM-DP Key Signing": 0.00273033301346004,
+    "ECDH Shared Secret Computation": 0.00028720905538648367,
+    "SM-DP Shared Secret Computation": 0.0001866660313680768,
+    "Profile Preparation Process": 10.038273042009678,
+    "Profile Data Preparation": 3.55839729309082e-05,
+    "Profile Download and Installation Process": 0.043648332997690886,
+    "PSK-TLS Encryption": 0.034732542000710964,
+    "PSK Key Derivation (AES-128)": 0.03378462605178356,
+    "AES-128 Encryption": 0.0002946669701486826,
+    "HMAC Generation": 0.00011970900231972337,
+    "PSK-TLS Decryption": 0.029796959017403424,
+    "PSK Key Derivation for MAC (AES-128)": 0.0176657079719007,
+    "HMAC Verification": 0.00010779203148558736,
+    "PSK Key Derivation for Decryption (AES-128)": 0.011007333057932556,
+    "AES-128 Decryption": 0.00014374894089996815,
+    "Profile Enabling Process": 10.052200292004272,
+    "Status Check Process": 0.03367337503004819
+  }
+}

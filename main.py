@@ -112,6 +112,12 @@ class TimingRecorder:
             self.data["metadata"]["total_duration"] = (end - start).total_seconds()
     
     def add_process(self, name, duration, entity=None, status="success", details=None):
+        # Debug print to check incoming duration value
+        print(f"DEBUG - add_process received: name={name}, duration={duration}, type={type(duration)}")
+        
+        # Explicitly convert duration to float to ensure proper serialization
+        duration = float(duration)
+        
         process = {
             "name": name,
             "duration": duration,
@@ -123,22 +129,25 @@ class TimingRecorder:
         if details:
             process["details"] = details
             
+        # Debug print to check process dictionary
+        print(f"DEBUG - process dictionary: duration={process['duration']}, type={type(process['duration'])}")
+            
         self.data["processes"].append(process)
         self.data["summary"]["total_processes"] += 1
         
-        # Update summary statistics
-        self.data["summary"]["average_duration"] = sum(p["duration"] for p in self.data["processes"]) / len(self.data["processes"])
-        self.data["summary"]["max_duration"] = max(self.data["summary"]["max_duration"], duration)
+        # Update summary statistics with explicit float conversions
+        self.data["summary"]["average_duration"] = float(sum(float(p["duration"]) for p in self.data["processes"]) / len(self.data["processes"]))
+        self.data["summary"]["max_duration"] = float(max(self.data["summary"]["max_duration"], duration))
         if duration < self.data["summary"]["min_duration"]:
-            self.data["summary"]["min_duration"] = duration
+            self.data["summary"]["min_duration"] = float(duration)
         
         # Check for bottlenecks
         if duration > BOTTLENECK_THRESHOLD:
             bottleneck = {
                 "process_name": name,
-                "duration": duration,
+                "duration": float(duration),
                 "entity": entity,
-                "threshold": BOTTLENECK_THRESHOLD
+                "threshold": float(BOTTLENECK_THRESHOLD)
             }
             self.data["bottlenecks"].append(bottleneck)
             self.data["summary"]["bottleneck_count"] += 1
@@ -157,8 +166,28 @@ class TimingRecorder:
         # Ensure the directory exists
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         
+        # Debug: check durations before saving
+        print(f"DEBUG - Before saving to JSON - First process duration: {self.data['processes'][0]['duration'] if self.data['processes'] else 'No processes'}")
+        
+        # Convert all duration values to explicit floats one more time to ensure proper serialization
+        for process in self.data["processes"]:
+            process["duration"] = float(process["duration"])
+        
+        # Add detailed measurements from TimingContext
+        self.data["detailed_measurements"] = {}
+        for name, duration in TimingContext.get_all_timings().items():
+            self.data["detailed_measurements"][name] = float(duration)
+            
+        # Add the detailed measurements to the summary for reporting
+        print(f"DEBUG - Detailed measurements: {self.data['detailed_measurements']}")
+        
         with open(filename, 'w') as f:
             json.dump(self.data, f, indent=2)
+            
+        # Debug: read back and verify
+        with open(filename, 'r') as f:
+            read_data = json.load(f)
+            print(f"DEBUG - After reading JSON - First process duration: {read_data['processes'][0]['duration'] if read_data['processes'] else 'No processes'}")
             
         return filename
     
@@ -353,6 +382,9 @@ def wait_for_servers():
 def run_demo():
     global timing_data
     
+    # Reset any existing timings
+    TimingContext.reset_timings()
+    
     # Store demo start time
     demo_start_time = datetime.now()
     
@@ -393,6 +425,8 @@ def run_demo():
             status = "error"
             
         timing_data["Registration"] = tc.elapsed_time
+        # Debug print to check the elapsed_time value
+        print(f"DEBUG - Registration elapsed_time: {tc.elapsed_time}, type: {type(tc.elapsed_time)}")
         # Record in enhanced format
         timing_recorder.add_process(
             "eUICC Registration",

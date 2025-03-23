@@ -474,50 +474,87 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
     # Performance Measurements
     elements.append(Paragraph("2. Performance Measurements", heading1Style))
     
-    elements.append(Paragraph("The following table shows the time taken for each step of the process:", normalStyle))
+    # Check if we have detailed measurements from TimingContext
+    detailed_measurements = None
+    if enhanced_timing_data and 'detailed_measurements' in enhanced_timing_data:
+        detailed_measurements = enhanced_timing_data['detailed_measurements']
+        elements.append(Paragraph("The following table shows the accurate time taken for each step of the process from detailed measurements:", normalStyle))
+    else:
+        elements.append(Paragraph("The following table shows the time taken for each step of the process:", normalStyle))
     
     # Create timing data table with ordered steps and bottleneck highlighting
     timing_table_data = [['Process Step', 'Time (seconds)', 'Bottleneck']]
     
     # Define the correct order of steps in the M2M RSP process
     process_steps_order = [
-        "Registration",
-        "ISD-P Creation",
-        "Key Establishment",
-        "Profile Preparation",
-        "Profile Installation",
-        "Profile Enabling"
+        "Root CA Setup",
+        "SM-DP Setup",
+        "SM-SR Setup",
+        "eUICC Setup",
+        "eUICC Registration Process",
+        "ISD-P Creation Process",
+        "ECDH Key Establishment Process",
+        "Profile Preparation Process",
+        "Profile Download and Installation Process",
+        "Profile Enabling Process",
+        "Status Check Process"
     ]
     
-    # Reorder and identify bottlenecks
-    ordered_timing = {}
-    for step in process_steps_order:
-        if step in timing_data:
-            ordered_timing[step] = timing_data[step]
-    
-    # Include other steps that might be in timing_data but not in our ordered list
-    for step, time_value in timing_data.items():
-        if step not in ordered_timing and step != "Total Execution":
-            ordered_timing[step] = time_value
+    # Use the detailed measurements if available, otherwise use the process durations
+    if detailed_measurements:
+        ordered_timing = {}
+        # Add the detailed measurements in correct order
+        for step in process_steps_order:
+            if step in detailed_measurements:
+                # Only add non-zero timings
+                if detailed_measurements[step] > 0:
+                    ordered_timing[step] = detailed_measurements[step]
+        
+        # Include any other detailed measurements not in our ordered list
+        for step, time_value in detailed_measurements.items():
+            if step not in ordered_timing and time_value > 0:
+                ordered_timing[step] = time_value
+    else:
+        # Use the enhanced process durations
+        ordered_timing = {}
+        if enhanced_timing_data and 'processes' in enhanced_timing_data:
+            for process in enhanced_timing_data['processes']:
+                name = process.get('name', '')
+                duration = process.get('duration', 0)
+                # Only add non-zero durations
+                if duration > 0:
+                    ordered_timing[name] = duration
+        else:
+            # Fall back to the simple timing data
+            for step in process_steps_order:
+                if step in timing_data and timing_data[step] > 0:
+                    ordered_timing[step] = timing_data[step]
     
     # Calculate total process time
     total_process_time = sum(ordered_timing.values())
     
-    # Identify bottlenecks (steps taking more than 20% of total time)
+    # Get the total execution time from metadata if available
+    total_protocol_time = None
+    if enhanced_timing_data and 'metadata' in enhanced_timing_data:
+        total_protocol_time = enhanced_timing_data['metadata'].get('total_duration', None)
+    
+    # Identify bottlenecks using absolute threshold
     bottleneck_steps = []
-    bottleneck_threshold_percent = total_process_time * 0.2  # 20% threshold
     
     for step, time_taken in ordered_timing.items():
-        is_bottleneck = time_taken > bottleneck_threshold_percent
+        is_bottleneck = time_taken > bottleneck_threshold
         bottleneck_text = "Yes" if is_bottleneck else "No"
         timing_table_data.append([step, f"{time_taken:.3f}", bottleneck_text])
         
         if is_bottleneck:
             bottleneck_steps.append((step, time_taken))
     
-    # Add total time
-    total_time = timing_data.get("Total Execution", total_process_time)
-    timing_table_data.append(['Total Process Time', f"{total_time:.3f}", ""])
+    # Add total time for all measured operations
+    timing_table_data.append(['Total Process Operations', f"{total_process_time:.3f}", ""])
+    
+    # Add total protocol time if available
+    if total_protocol_time:
+        timing_table_data.append(['Total Protocol Time (including network delays)', f"{total_protocol_time:.3f}", ""])
     
     timing_table = Table(timing_table_data, colWidths=[doc.width*0.6, doc.width*0.2, doc.width*0.2])
     timing_table.setStyle(TableStyle([
@@ -535,94 +572,24 @@ def generate_pdf_report(timing_data=None, enhanced_timing_data=None, connectivit
     ]))
     
     # Highlight bottleneck rows
-    for i, row in enumerate(timing_table_data[1:-1], 1):  # Skip header and totals row
+    for i, row in enumerate(timing_table_data[1:-2], 1):  # Skip header and totals rows
         if row[2] == "Yes":
             timing_table.setStyle(TableStyle([
                 ('BACKGROUND', (0, i), (-1, i), colors.lightcoral),
             ]))
     
+    # Highlight total rows
+    if len(timing_table_data) > 2:  # If we have more than header and one total row
+        timing_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, -2), (-1, -2), colors.lightblue),  # Total Process Operations
+        ]))
+    if len(timing_table_data) > 3:  # If we have more than header and two total rows
+        timing_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgreen),  # Total Protocol Time
+        ]))
+    
     elements.append(timing_table)
     elements.append(Spacer(1, 0.3*inch))
-    
-    # Add bottleneck analysis
-    elements.append(Paragraph("2.1 Traditional Bottleneck Analysis", heading2Style))
-    
-    # Add bottleneck analysis text
-    if bottleneck_steps:
-        bottleneck_text = """
-        The following steps were identified as bottlenecks in the M2M RSP process (taking more than 20% of the total process time):
-        """
-        elements.append(Paragraph(bottleneck_text, normalStyle))
-        
-        for step, time_taken in bottleneck_steps:
-            percentage = (time_taken / total_process_time) * 100
-            elements.append(Paragraph(f"• {step}: {time_taken:.3f}s ({percentage:.1f}% of total time)", normalStyle))
-    else:
-        elements.append(Paragraph("No significant bottlenecks were identified in the process using percentage-based analysis.", normalStyle))
-    
-    elements.append(Spacer(1, 0.3*inch))
-    
-    # Add enhanced bottleneck analysis if available
-    if enhanced_timing_data and 'bottlenecks' in enhanced_timing_data and enhanced_timing_data['bottlenecks']:
-        elements.append(Paragraph("2.2 Enhanced Bottleneck Analysis", heading2Style))
-        
-        bottleneck_analysis_text = f"""
-        The following steps exceeded the fixed bottleneck threshold of {bottleneck_threshold}s:
-        """
-        elements.append(Paragraph(bottleneck_analysis_text, normalStyle))
-        
-        # Create an enhanced table for bottlenecks
-        bottleneck_table_data = [['Process Name', 'Duration (s)', 'Entity', 'Threshold (s)', 'Excess (s)']]
-        
-        for bottleneck in enhanced_timing_data['bottlenecks']:
-            name = bottleneck['process_name']
-            duration = bottleneck['duration']
-            entity = bottleneck.get('entity', 'Unknown')
-            threshold = bottleneck.get('threshold', bottleneck_threshold)
-            excess = duration - threshold
-            
-            bottleneck_table_data.append([
-                name,
-                f"{duration:.2f}",
-                entity,
-                f"{threshold:.2f}",
-                f"{excess:.2f}"
-            ])
-            
-        bottleneck_table = Table(bottleneck_table_data, colWidths=[doc.width*0.35, doc.width*0.15, doc.width*0.15, doc.width*0.15, doc.width*0.2])
-        bottleneck_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
-            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-            ('ALIGN', (1, 1), (4, -1), 'RIGHT'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-            ('TOPPADDING', (0, 0), (-1, 0), 12),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            ('BACKGROUND', (0, 1), (-1, -1), colors.mistyrose),
-        ]))
-        
-        elements.append(bottleneck_table)
-        
-        # Add bottleneck summary
-        if 'summary' in enhanced_timing_data:
-            summary = enhanced_timing_data['summary']
-            elements.append(Spacer(1, 0.2*inch))
-            elements.append(Paragraph("Bottleneck Summary:", ParagraphStyle('BoldNormal', parent=normalStyle, fontName='Helvetica-Bold')))
-            
-            summary_items = [
-                f"Total Processes: {summary.get('total_processes', 0)}",
-                f"Bottleneck Count: {summary.get('bottleneck_count', 0)}",
-                f"Average Duration: {summary.get('average_duration', 0):.2f}s",
-                f"Maximum Duration: {summary.get('max_duration', 0):.2f}s",
-                f"Minimum Duration: {summary.get('min_duration', float('inf')):.2f}s",
-            ]
-            
-            for item in summary_items:
-                elements.append(Paragraph(f"• {item}", normalStyle))
-                
-        elements.append(Spacer(1, 0.4*inch))
     
     # Connectivity and System Diagnostics
     elements.append(Paragraph("3. Connectivity and System Diagnostics", heading1Style))
