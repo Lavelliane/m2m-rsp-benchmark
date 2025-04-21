@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  tls-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9001:9001"
+      - "9002:9002"
+      - "9003:9003"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped 

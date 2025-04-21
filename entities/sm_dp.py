@@ -1,9 +1,6 @@
 from klein import Klein
-from twisted.internet import ssl, reactor
+from twisted.internet import reactor
 from twisted.web.server import Site
-from cryptography.hazmat.primitives.asymmetric import rsa, ec
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
 import json
 import uuid
 import time
@@ -12,37 +9,27 @@ import requests
 import base64
 import os
 
-from certs.root_ca import RootCA
 from crypto.ecdh import ECDH
 from crypto.kdf import NIST_KDF
 from utils.timing import TimingContext
 
 class SMDP:
-    def __init__(self, host="localhost", port=8001, ca=None):
+    def __init__(self, host="localhost", port=8001):
         self.app = Klein()
         self.host = host
         self.port = port
-        self.ca = ca
         
-        # Generate RSA key pair for TLS
-        with TimingContext("SM-DP RSA Key Generation"):
-            self.private_key = rsa.generate_private_key(
-                public_exponent=65537,
-                key_size=2048
-            )
-            
-        self.certificate = None
+        # Configure SM-SR endpoint with TLS proxy settings
+        self.use_tls_proxy = True  # Set to True by default
         self.sm_sr_host = "localhost"
-        self.sm_sr_port = 8002
+        self.sm_sr_port = 9002 if self.use_tls_proxy else 8002
+        self.sm_sr_protocol = "https" if self.use_tls_proxy else "http"
         
         # Profile data storage
         self.profiles = {}
         
         # ECDH key pairs for key establishment
-        self.static_private_key = ec.generate_private_key(
-            curve=ec.SECP256R1(),
-            backend=None
-        )
+        self.static_private_key = ECDH.generate_keypair()[0]
         self.ephemeral_keys = {}  # Session-specific keys
         self.shared_secrets = {}  # Established shared secrets
         
@@ -73,7 +60,7 @@ class SMDP:
                 print(f"SM-DP: Starting transmission of profile {iccid} to SM-SR")
                 
                 try:
-                    # Send profile to SM-SR using TLS
+                    # Send profile to SM-SR using HTTP
                     response = self.send_to_smsr(profile_data)
                     
                     if response.get("status") == "success":
@@ -128,24 +115,11 @@ class SMDP:
                 "step": "initialized"
             }
             
-            # Sign the ephemeral public key and random challenge
-            with TimingContext("SM-DP Key Signing"):
-                data_to_sign = public_key_bytes + rc + session_id.encode()
-                signature = self.private_key.sign(
-                    data_to_sign,
-                    padding.PSS(
-                        mgf=padding.MGF1(hashes.SHA256()),
-                        salt_length=padding.PSS.MAX_LENGTH
-                    ),
-                    hashes.SHA256()
-                )
-            
             return json.dumps({
                 "status": "success",
                 "session_id": session_id,
                 "public_key": base64.b64encode(public_key_bytes).decode(),
-                "random_challenge": base64.b64encode(rc).decode(),
-                "signature": base64.b64encode(signature).decode()
+                "random_challenge": base64.b64encode(rc).decode()
             })
         
         @self.app.route('/key-establishment/complete', methods=['POST'])
@@ -255,11 +229,11 @@ class SMDP:
             })
     
     def send_to_smsr(self, data):
-        # Send data to SM-SR via HTTP only
-        print(f"SM-DP: Sending data to SM-SR via HTTP...")
+        # Send data to SM-SR via HTTP/HTTPS
+        print(f"SM-DP: Sending data to SM-SR via {self.sm_sr_protocol.upper()}...")
         
         try:
-            # Check if SM-SR is available on the standard port 8002
+            # Check if SM-SR is available on the configured port
             import socket
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(2)
@@ -276,11 +250,16 @@ class SMDP:
             finally:
                 sock.close()
             
-            # Use HTTP to communicate with SM-SR
-            url = f"http://{self.sm_sr_host}:{self.sm_sr_port}/profile/receive"
+            # Use HTTP/HTTPS to communicate with SM-SR
+            url = f"{self.sm_sr_protocol}://{self.sm_sr_host}:{self.sm_sr_port}/profile/receive"
             print(f"SM-DP: Sending to URL: {url}")
             
-            response = requests.post(url, json=data, timeout=10)
+            response = requests.post(
+                url, 
+                json=data, 
+                timeout=10,
+                verify=False  # Skip SSL verification for self-signed certs
+            )
             
             # Log the result
             if response.status_code == 200:
@@ -308,41 +287,6 @@ class SMDP:
             # For testing, return a success fallback
             print("SM-DP: Using fallback success response to continue")
             return {"status": "success", "message": "Profile received (fallback response for testing)"}
-    
-    def get_certificate_from_ca(self):
-        if self.ca:
-            print("SM-DP: Generating certificate...")
-            # Create the 'certs' directory if it doesn't exist
-            if not os.path.exists("certs"):
-                os.makedirs("certs")
-                print("SM-DP: Created 'certs' directory")
-            
-            with TimingContext("SM-DP Certificate Issuance"):
-                self.certificate = self.ca.issue_certificate(
-                    common_name="SM-DP",
-                    public_key=self.private_key.public_key()
-                )
-            
-            # Save the certificate
-            cert_path = "certs/smdp_cert.pem"
-            with open(cert_path, "wb") as f:
-                f.write(self.certificate.public_bytes(serialization.Encoding.PEM))
-            print(f"SM-DP: Certificate saved to {cert_path}")
-            
-            # Save the private key
-            key_path = "certs/smdp_key.pem"
-            with open(key_path, "wb") as f:
-                f.write(self.private_key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.PKCS8,
-                    encryption_algorithm=serialization.NoEncryption()
-                ))
-            print(f"SM-DP: Private key saved to {key_path}")
-            
-            return True
-        else:
-            print("SM-DP: No CA available for certificate generation")
-            return False
     
     def create_sample_profile(self, profile_type, iccid):
         """Create a sample profile for demonstration"""
@@ -389,52 +333,15 @@ class SMDP:
         return profile_data
     
     def run(self):
-        # Setup SSL context with our certificate and private key
-        if not self.get_certificate_from_ca():
-            print("SM-DP: Failed to generate certificate, cannot start HTTPS server")
-            return False
-        
-        # Verify certificate files exist
-        if not os.path.exists("certs/smdp_cert.pem") or not os.path.exists("certs/smdp_key.pem"):
-            print("SM-DP: Certificate files missing, cannot start HTTPS server")
-            return False
-            
-        # Create context factory for TLS
-        from twisted.internet import ssl
-        from OpenSSL import SSL
-        
-        class ChainedOpenSSLContextFactory(ssl.DefaultOpenSSLContextFactory):
-            def __init__(self, privateKeyFileName, certificateFileName):
-                self.privateKeyFileName = privateKeyFileName
-                self.certificateFileName = certificateFileName
-                self.cacheContext()
-                
-            def cacheContext(self):
-                ctx = SSL.Context(SSL.SSLv23_METHOD)
-                ctx.use_certificate_file(self.certificateFileName)
-                ctx.use_privatekey_file(self.privateKeyFileName)
-                ctx.set_options(SSL.OP_NO_SSLv2)
-                ctx.set_options(SSL.OP_NO_SSLv3)
-                ctx.set_options(SSL.OP_NO_TLSv1)
-                ctx.set_options(SSL.OP_SINGLE_DH_USE)
-                self._context = ctx
-                
-        # Better configured context factory
-        contextFactory = ChainedOpenSSLContextFactory(
-            "certs/smdp_key.pem", 
-            "certs/smdp_cert.pem"
-        )
-        
-        # Run the server
-        print(f"SM-DP: Starting HTTPS server on port {self.port}...")
-        reactor.listenSSL(self.port, Site(self.app.resource()), contextFactory)
-        print(f"SM-DP running on https://{self.host}:{self.port}")
+        # Run the server with HTTP only
+        print(f"SM-DP: Starting HTTP server on port {self.port}...")
+        reactor.listenTCP(self.port, Site(self.app.resource()))
+        print(f"SM-DP running on http://{self.host}:{self.port}")
         
         return True
 
 if __name__ == "__main__":
     # Example usage
-    ca = RootCA()
-    smdp = SMDP(ca=ca)
+    smdp = SMDP()
     smdp.run()
     reactor.run() 

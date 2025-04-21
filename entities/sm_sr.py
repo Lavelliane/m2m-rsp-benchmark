@@ -1,37 +1,30 @@
 from klein import Klein
-from twisted.internet import ssl, reactor
+from twisted.internet import reactor
 from twisted.web.server import Site
-from cryptography.hazmat.primitives.asymmetric import rsa, ec
-from cryptography.hazmat.primitives import serialization
 import json
 import os
 import base64
 import uuid
 import time
 import requests
-from certs.root_ca import RootCA
 from crypto.psk_tls import PSK_TLS
 from crypto.ecdh import ECDH
 from utils.timing import TimingContext
 from crypto.scp03t import SCP03t
-from OpenSSL import SSL
 
 class SMSR:
-    def __init__(self, host="localhost", port=8002, ca=None):
+    def __init__(self, host="localhost", port=8002):
         self.app = Klein()
         self.host = host
         self.port = port
-        self.ca = ca
         self.sm_sr_id = f"SMSR_{str(uuid.uuid4())[:8]}"  # Add SM-SR ID
         
-        # Generate RSA key pair for TLS
-        with TimingContext("SM-SR RSA Key Generation"):
-            self.private_key = rsa.generate_private_key(
-                public_exponent=65537,
-                key_size=2048
-            )
+        # Configure eUICC endpoint with TLS proxy settings
+        self.use_tls_proxy = True  # Set to True by default
+        self.euicc_host = "localhost"
+        self.euicc_port = 9003 if self.use_tls_proxy else 8003
+        self.euicc_protocol = "https" if self.use_tls_proxy else "http"
         
-        self.certificate = None
         self.profiles = {}
         self.euiccs = {}  # Change to use proper euiccs dictionary
         self.psk_keys = {}  # For backward compatibility
@@ -216,10 +209,12 @@ class SMSR:
                     # Forward to eUICC
                     print(f"SM-SR: Sending enable command to eUICC")
                     try:
+                        euicc_url = f"{self.euicc_protocol}://{self.euicc_host}:{self.euicc_port}/es8/receive"
                         response = requests.post(
-                            f"http://localhost:8003/es8/receive",
+                            euicc_url,
                             json={"encryptedData": encrypted_data},
-                            timeout=10  # Increase timeout
+                            timeout=10,  # Increase timeout
+                            verify=False  # Skip SSL verification for self-signed cert
                         )
                         
                         # Process response
@@ -516,10 +511,12 @@ class SMSR:
             # Here we simulate it with a direct forward
             try:
                 # Forward to eUICC
+                euicc_url = f"{self.euicc_protocol}://{self.euicc_host}:{self.euicc_port}/es8/receive"
                 response = requests.post(
-                    f"http://{self.host}:8003/es8/receive",
+                    euicc_url,
                     json={"encryptedData": encrypted_data},
-                    timeout=5
+                    timeout=5,
+                    verify=False  # Skip SSL verification for self-signed cert
                 )
                 
                 # Get response and decrypt
@@ -561,37 +558,14 @@ class SMSR:
                 "sm_sr_id": self.sm_sr_id
             })
     
-    def get_certificate_from_ca(self):
-        if self.ca:
-            with TimingContext("SM-SR Certificate Issuance"):
-                self.certificate = self.ca.issue_certificate(
-                    common_name="SM-SR",
-                    public_key=self.private_key.public_key()
-                )
-            
-            # Save the certificate
-            with open("certs/smsr_cert.pem", "wb") as f:
-                f.write(self.certificate.public_bytes(serialization.Encoding.PEM))
-            
-            # Save the private key
-            with open("certs/smsr_key.pem", "wb") as f:
-                f.write(self.private_key.private_bytes(
-                    encoding=serialization.Encoding.PEM,
-                    format=serialization.PrivateFormat.PKCS8,
-                    encryption_algorithm=serialization.NoEncryption()
-                ))
-    
     def run(self):
-        # Skip SSL for now and just use HTTP for testing
+        # Run the server with HTTP only
         print(f"SM-SR: Starting HTTP server on port {self.port}...")
         reactor.listenTCP(self.port, Site(self.app.resource()))
         print(f"SM-SR running on http://{self.host}:{self.port}")
-        
-        # We don't call reactor.run() here, as it will be called by the main script
 
 if __name__ == "__main__":
     # Example usage
-    ca = RootCA()
-    smsr = SMSR(ca=ca)
+    smsr = SMSR()
     smsr.run()
     reactor.run() 

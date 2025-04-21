@@ -1,15 +1,12 @@
 from klein import Klein
-from twisted.internet import ssl, reactor
+from twisted.internet import reactor
 from twisted.web.server import Site
-from cryptography.hazmat.primitives.asymmetric import ec
-from cryptography.hazmat.primitives import hashes
 import json
 import os
 import base64
 import uuid
 import requests
 import time
-from cryptography.hazmat.primitives import serialization
 
 from crypto.psk_tls import PSK_TLS
 from crypto.ecdh import ECDH
@@ -23,10 +20,14 @@ class EUICC:
         self.euicc_id = euicc_id
         self.host = host
         self.port = port
+        
+        # Configure TLS proxy settings
+        self.use_tls_proxy = True  # Set to True by default
         self.sm_sr_host = sm_sr_host
-        self.sm_sr_port = sm_sr_port
+        self.sm_sr_port = 9002 if self.use_tls_proxy else sm_sr_port
         self.sm_dp_host = sm_dp_host
-        self.sm_dp_port = sm_dp_port
+        self.sm_dp_port = 9001 if self.use_tls_proxy else sm_dp_port
+        self.protocol = "https" if self.use_tls_proxy else "http"
         
         # Storage for profiles and keys
         self.installed_profiles = {}
@@ -36,15 +37,7 @@ class EUICC:
         
         # Generate ECKA key pair
         with TimingContext("eUICC Key Generation"):
-            self.private_key = ec.generate_private_key(
-                curve=ec.SECP256R1()
-            )
-            self.public_key = self.private_key.public_key()
-            # Serialize public key for easier transmission
-            self.public_key_bytes = self.public_key.public_bytes(
-                encoding=serialization.Encoding.X962,
-                format=serialization.PublicFormat.UncompressedPoint
-            )
+            self.private_key, self.public_key_bytes = ECDH.generate_keypair()
         
         # Storage for key establishment sessions and shared secrets
         self.ecdh_sessions = {}
@@ -366,7 +359,7 @@ class EUICC:
                 "svn": "2.1.0",              # Specification Version Number
                 "euiccCiPKId": "id12345",    # eUICC CI Public Key Identifier
                 "euiccCiPK": {               # eUICC Certificate Issuer Public Key
-                    "key": self.public_key.public_bytes(encoding=serialization.Encoding.DER, format=serialization.PublicFormat.SubjectPublicKeyInfo).hex(),
+                    "key": base64.b64encode(self.public_key_bytes).decode(),
                     "algorithm": "EC/SECP256R1"
                 },
                 "euiccCapabilities": {       # eUICC Capabilities
@@ -381,11 +374,12 @@ class EUICC:
         }
         
         try:
+            url = f"{self.protocol}://{self.sm_sr_host}:{self.sm_sr_port}/euicc/register"
             response = requests.post(
-                "https://localhost:8002/euicc/register", 
+                url, 
                 json=euicc_info,
-                verify=False,
-                timeout=5
+                timeout=5,
+                verify=False  # Skip SSL verification for self-signed cert
             )
             print(f"eUICC: Registration response received from SM-SR")
             data = response.json()
@@ -411,12 +405,17 @@ class EUICC:
         try:
             # Determine target URL
             if target == "sm-dp":
-                url = "https://localhost:8001/key-establishment/init"
+                url = f"{self.protocol}://{self.sm_dp_host}:{self.sm_dp_port}/key-establishment/init"
             else:  # Default to SM-SR
-                url = f"https://localhost:8002/key-establishment/init/{self.euicc_id}"
+                url = f"{self.protocol}://{self.sm_sr_host}:{self.sm_sr_port}/key-establishment/init/{self.euicc_id}"
             
             # Step 1: Initialize key establishment
-            response = requests.post(url, json={}, verify=False, timeout=5)
+            response = requests.post(
+                url, 
+                json={}, 
+                timeout=5,
+                verify=False  # Skip SSL verification for self-signed cert
+            )
             print(f"eUICC: Received initialization response from {target}")
             data = response.json()
             
@@ -439,18 +438,18 @@ class EUICC:
             # Store the shared secret
             if target == "sm-dp":
                 self.shared_secrets["sm-dp"] = shared_secret
-                complete_url = "https://localhost:8001/key-establishment/complete"
+                complete_url = f"{self.protocol}://{self.sm_dp_host}:{self.sm_dp_port}/key-establishment/complete"
             else:
                 self.shared_secrets["sm-sr"] = shared_secret
-                complete_url = f"https://localhost:8002/key-establishment/complete/{session_id}"
+                complete_url = f"{self.protocol}://{self.sm_sr_host}:{self.sm_sr_port}/key-establishment/complete/{session_id}"
             
             # Send our public key to complete the exchange
             print(f"eUICC: Sending public key to complete key establishment")
             response = requests.post(
                 complete_url,
                 json={"session_id": session_id, "public_key": base64.b64encode(public_key_bytes).decode()},
-                verify=False,
-                timeout=5
+                timeout=5,
+                verify=False  # Skip SSL verification for self-signed cert
             )
             
             data = response.json()
@@ -481,11 +480,12 @@ class EUICC:
                 return False
                 
             print(f"eUICC: Sending request to SM-SR for profile {profile_id}")
+            url = f"{self.protocol}://{self.sm_sr_host}:{self.sm_sr_port}/profile/install/{self.euicc_id}" 
             response = requests.post(
-                f"https://localhost:8002/profile/install/{self.euicc_id}",
+                url,
                 json={"profileId": profile_id},
-                verify=False,
-                timeout=10  # Longer timeout for profile installation
+                timeout=10,  # Longer timeout for profile installation
+                verify=False  # Skip SSL verification for self-signed cert
             )
             print(f"eUICC: Received profile installation response from SM-SR")
             
@@ -553,14 +553,9 @@ class EUICC:
         # Register with SM-SR first
         self.register_with_smsr()
         
-        # Setup for PSK-TLS (in a real implementation)
-        # In this simplified example, we're just using HTTP
-        
         # Run the server
         reactor.listenTCP(self.port, Site(self.app.resource()))
         print(f"eUICC running on http://{self.host}:{self.port}")
-        
-        # We don't call reactor.run() here, as it will be called by the main script
 
 if __name__ == "__main__":
     # Example usage

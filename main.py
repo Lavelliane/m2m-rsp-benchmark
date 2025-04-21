@@ -4,8 +4,6 @@ import time
 import sys
 import requests
 import os
-import ssl
-from urllib3.exceptions import InsecureRequestWarning
 import warnings
 import json
 from datetime import datetime
@@ -31,10 +29,16 @@ except ImportError:
     Style = DummyStyle()
     COLORS_AVAILABLE = False
 
-# Suppress insecure request warnings for development
-warnings.filterwarnings('ignore', category=InsecureRequestWarning)
+# Disable SSL warnings for self-signed certificates
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-from certs.root_ca import RootCA
+# Define constants for service endpoints
+USE_TLS_PROXY = True  # Set to True by default to use the TLS proxy
+SMDP_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9001' if USE_TLS_PROXY else '8001'}"
+SMSR_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9002' if USE_TLS_PROXY else '8002'}"
+EUICC_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9003' if USE_TLS_PROXY else '8003'}"
+
 from entities.sm_dp import SMDP
 from entities.sm_sr import SMSR
 from entities.euicc import EUICC
@@ -268,62 +272,32 @@ def run_entity_in_thread(entity_init, entity_name):
     thread.start()
     return thread
 
-def run_root_ca():
-    spinner = Spinner("Initializing Root CA...", entity="ROOT_CA")
-    spinner.start()
-    
-    with TimingContext("Root CA Setup") as tc:
-        # Ensure certs directory exists
-        os.makedirs("certs", exist_ok=True)
-        
-        ca = RootCA()
-        ca.save_key_and_cert("certs/ca_key.pem", "certs/ca_cert.pem")
-        
-        spinner.stop(message=f"Root CA initialized and certificates saved ({tc.elapsed_time:.2f}s)")
-        return ca
-
-def run_sm_dp(ca):
+def run_sm_dp():
     spinner = Spinner("Setting up SM-DP...", entity="SM-DP")
     spinner.start()
     
     with TimingContext("SM-DP Setup") as tc:
-        smdp = SMDP(ca=ca)
-        smdp.get_certificate_from_ca()
-        
-        # Create context factory for TLS
-        from twisted.internet import ssl
-        from twisted.web.server import Site
-        contextFactory = ssl.DefaultOpenSSLContextFactory(
-            "certs/smdp_key.pem", 
-            "certs/smdp_cert.pem"
-        )
+        smdp = SMDP()
         
         # Run the server without blocking
-        reactor.listenSSL(8001, Site(smdp.app.resource()), contextFactory)
+        from twisted.web.server import Site
+        reactor.listenTCP(8001, Site(smdp.app.resource()))
         
-        spinner.stop(message=f"SM-DP running on https://localhost:8001 ({tc.elapsed_time:.2f}s)")
+        spinner.stop(message=f"SM-DP running on http://localhost:8001 ({tc.elapsed_time:.2f}s)")
         return smdp
 
-def run_sm_sr(ca):
+def run_sm_sr():
     spinner = Spinner("Setting up SM-SR...", entity="SM-SR")
     spinner.start()
     
     with TimingContext("SM-SR Setup") as tc:
-        smsr = SMSR(ca=ca)
-        smsr.get_certificate_from_ca()
-        
-        # Create context factory for TLS
-        from twisted.internet import ssl
-        from twisted.web.server import Site
-        contextFactory = ssl.DefaultOpenSSLContextFactory(
-            "certs/smsr_key.pem", 
-            "certs/smsr_cert.pem"
-        )
+        smsr = SMSR()
         
         # Run the server without blocking
-        reactor.listenSSL(8002, Site(smsr.app.resource()), contextFactory)
+        from twisted.web.server import Site
+        reactor.listenTCP(8002, Site(smsr.app.resource()))
         
-        spinner.stop(message=f"SM-SR running on https://localhost:8002 ({tc.elapsed_time:.2f}s)")
+        spinner.stop(message=f"SM-SR running on http://localhost:8002 ({tc.elapsed_time:.2f}s)")
         return smsr
 
 def run_euicc():
@@ -350,19 +324,19 @@ def wait_for_servers():
         try:
             # Check SM-DP
             spinner.update(f"Checking SM-DP availability (attempt {attempt}/{max_attempts})...")
-            smdp_response = requests.get("https://localhost:8001/status", verify=False, timeout=2)
+            smdp_response = requests.get(f"{SMDP_ENDPOINT}/status", timeout=2, verify=False)
             if smdp_response.status_code != 200:
                 raise Exception("SM-DP not ready")
                 
             # Check SM-SR
             spinner.update(f"Checking SM-SR availability (attempt {attempt}/{max_attempts})...")
-            smsr_response = requests.get("https://localhost:8002/status", verify=False, timeout=2)
+            smsr_response = requests.get(f"{SMSR_ENDPOINT}/status", timeout=2, verify=False)
             if smsr_response.status_code != 200:
                 raise Exception("SM-SR not ready")
                 
             # Check eUICC
             spinner.update(f"Checking eUICC availability (attempt {attempt}/{max_attempts})...")
-            euicc_response = requests.get("http://localhost:8003/status", timeout=2)
+            euicc_response = requests.get(f"{EUICC_ENDPOINT}/status", timeout=2, verify=False)
             if euicc_response.status_code != 200:
                 raise Exception("eUICC not ready")
             
@@ -446,10 +420,10 @@ def run_demo():
         
         try:
             response = requests.post(
-                "https://localhost:8002/isdp/create",
+                f"{SMSR_ENDPOINT}/isdp/create",
                 json={"euiccId": euicc.euicc_id, "memoryRequired": 256},
-                verify=False,
-                timeout=10  # Increased timeout
+                timeout=10,  # Increased timeout
+                verify=False  # Skip SSL verification for self-signed cert
             )
             
             if response.json().get('status') == 'success':
@@ -522,14 +496,14 @@ def run_demo():
         
         try:
             response = requests.post(
-                "https://localhost:8001/profile/prepare",
+                f"{SMDP_ENDPOINT}/profile/prepare",
                 json={
                     "profileType": "telecom",
                     "iccid": profile_id,
                     "timestamp": int(time.time())
                 },
-                verify=False,
-                timeout=25  # Increased timeout
+                timeout=25,  # Increased timeout
+                verify=False  # Skip SSL verification for self-signed cert
             )
             
             if response.json().get('status') == 'success':
@@ -597,10 +571,10 @@ def run_demo():
         try:
             # Send a request to enable the profile
             response = requests.post(
-                f"https://localhost:8002/profile/enable/{euicc.euicc_id}",
+                f"{SMSR_ENDPOINT}/profile/enable/{euicc.euicc_id}",
                 json={"profileId": profile_id},
-                verify=False,
-                timeout=15  # Increased timeout
+                timeout=15,  # Increased timeout
+                verify=False  # Skip SSL verification for self-signed cert
             )
             
             if response.status_code == 200:
@@ -653,19 +627,19 @@ def run_demo():
         with TimingContext("Status Check Process") as tc:
             # Check SM-DP
             spinner.update("Checking SM-DP status...")
-            response = requests.get("https://localhost:8001/status", verify=False, timeout=10)
+            response = requests.get(f"{SMDP_ENDPOINT}/status", timeout=10, verify=False)
             connectivity_results["SM-DP"] = True
             log(f"SM-DP Status: {json.dumps(response.json(), indent=2)}", entity="SM-DP")
             
             # Check SM-SR
             spinner.update("Checking SM-SR status...")
-            response = requests.get("https://localhost:8002/status", verify=False, timeout=10)
+            response = requests.get(f"{SMSR_ENDPOINT}/status", timeout=10, verify=False)
             connectivity_results["SM-SR"] = True
             log(f"SM-SR Status: {json.dumps(response.json(), indent=2)}", entity="SM-SR")
             
             # Check eUICC
             spinner.update("Checking eUICC status...")
-            response = requests.get("http://localhost:8003/status", timeout=10)
+            response = requests.get(f"{EUICC_ENDPOINT}/status", timeout=10, verify=False)
             euicc_status = response.json()
             connectivity_results["eUICC"] = True
             log(f"eUICC Status: {json.dumps(euicc_status, indent=2)}", entity="eUICC")
@@ -894,16 +868,20 @@ def generate_bottleneck_report(timing_data):
 
 if __name__ == "__main__":
     # Print header with styling
-    print(f"\n{Style.BRIGHT}{Fore.CYAN}=== M2M Remote SIM Provisioning with TLS & PSK-TLS ==={Style.RESET_ALL}\n")
-    
-    # Initialize Root CA
-    ca = run_root_ca()
+    print(f"\n{Style.BRIGHT}{Fore.CYAN}=== M2M Remote SIM Provisioning with {'HTTPS' if USE_TLS_PROXY else 'HTTP'} ==={Style.RESET_ALL}\n")
     
     # Start all entities
     log("Starting all entities...", entity="SYSTEM")
-    smdp = run_sm_dp(ca)
-    smsr = run_sm_sr(ca)
+    smdp = run_sm_dp()
+    smsr = run_sm_sr()
     euicc = run_euicc()
+    
+    # Print connection information
+    if USE_TLS_PROXY:
+        log("Using TLS Proxy with the following endpoints:", entity="SYSTEM")
+        log(f"SM-DP: {SMDP_ENDPOINT}", entity="SM-DP")
+        log(f"SM-SR: {SMSR_ENDPOINT}", entity="SM-SR")
+        log(f"eUICC: {EUICC_ENDPOINT}", entity="eUICC")
     
     # Modified to capture return values
     def run_demo_and_report():
