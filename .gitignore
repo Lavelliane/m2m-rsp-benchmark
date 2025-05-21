@@ -13,3 +13,6 @@ __pycache__/
 
 /venv/
 output/load_tests/large_scale_metrics.json
+
+mock/test_results/*.json
+
