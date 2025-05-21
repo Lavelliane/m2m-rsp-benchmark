@@ -22,7 +22,7 @@ class EUICC:
         self.port = port
         
         # Configure TLS proxy settings
-        self.use_tls_proxy = True  # Set to True by default
+        self.use_tls_proxy = False  # Set to True by default
         self.sm_sr_host = sm_sr_host
         self.sm_sr_port = 9002 if self.use_tls_proxy else sm_sr_port
         self.sm_dp_host = sm_dp_host

@@ -20,7 +20,7 @@ class SMDP:
         self.port = port
         
         # Configure SM-SR endpoint with TLS proxy settings
-        self.use_tls_proxy = True  # Set to True by default
+        self.use_tls_proxy = False  # Set to True by default
         self.sm_sr_host = "localhost"
         self.sm_sr_port = 9002 if self.use_tls_proxy else 8002
         self.sm_sr_protocol = "https" if self.use_tls_proxy else "http"
