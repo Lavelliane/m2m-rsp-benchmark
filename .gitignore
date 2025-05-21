@@ -12,3 +12,4 @@ __pycache__/
 /tls-proxy/certs/*
 
 /venv/
+output/load_tests/large_scale_metrics.json
