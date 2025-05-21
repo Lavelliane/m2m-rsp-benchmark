@@ -490,7 +490,7 @@ def run_demo():
     
     # 4. Prepare profile at SM-DP and send it to SM-SR
     profile_id = "8901234567890123456"
-    with TimingContext("Profile Preparation Process") as tc:
+    with TimingContext("Profile Preparation and Sending Process (with SM-SR communication)") as tc:
         spinner = Spinner("Preparing profile at SM-DP...", entity="SM-DP")
         spinner.start()
         

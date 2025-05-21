@@ -50,7 +50,7 @@ class SMDP:
                 
                 print(f"SM-DP: Preparing profile with ID: {iccid}")
                 
-                with TimingContext("Profile Data Preparation"):
+                with TimingContext("Profile Data Preparation (Data Preparation)"):
                     # Create a sample profile for demonstration purposes
                     profile_data = self.create_sample_profile(profile_type, iccid)
                 

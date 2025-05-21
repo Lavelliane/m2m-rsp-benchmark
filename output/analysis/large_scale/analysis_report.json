@@ -1,0 +1,2065 @@
+{
+  "timestamp": "2025-05-21 10:12:37",
+  "load_test_file": "output/load_tests/large_scale_results.json",
+  "metrics_file": "output/load_tests/large_scale_metrics.json",
+  "analysis_results": {
+    "operation_stats": [
+      {
+        "operation": "Profile Preparation",
+        "count": 1321,
+        "min": 10.036271810531616,
+        "max": 59.91954827308655,
+        "mean": 38.142114032316535,
+        "median": 40.58968234062195,
+        "std": 12.61530233310883,
+        "is_bottleneck": true,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      },
+      {
+        "operation": "Registration",
+        "count": 6497,
+        "min": 0.01820993423461914,
+        "max": 59.51853680610657,
+        "mean": 37.28973433915259,
+        "median": 50.956626892089844,
+        "std": 21.576734771304526,
+        "is_bottleneck": true,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      },
+      {
+        "operation": "Profile Installation",
+        "count": 137,
+        "min": 0.0479888916015625,
+        "max": 80.82853055000305,
+        "mean": 26.731211523069952,
+        "median": 20.317973136901855,
+        "std": 21.7999087243466,
+        "is_bottleneck": true,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      },
+      {
+        "operation": "Profile Enabling",
+        "count": 90,
+        "min": 10.04465126991272,
+        "max": 50.40774869918823,
+        "mean": 24.85506052970886,
+        "median": 20.130039930343628,
+        "std": 16.308516695749645,
+        "is_bottleneck": true,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      },
+      {
+        "operation": "ISD-P Creation",
+        "count": 6361,
+        "min": 0.0024542808532714844,
+        "max": 56.48472213745117,
+        "mean": 2.144184557489396,
+        "median": 0.6133537292480469,
+        "std": 6.999072071083864,
+        "is_bottleneck": false,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      },
+      {
+        "operation": "Key Establishment",
+        "count": 6361,
+        "min": 0.10001850128173828,
+        "max": 0.10341405868530273,
+        "mean": 0.1003029166555802,
+        "median": 0.10031461715698242,
+        "std": 0.00015922254600239403,
+        "is_bottleneck": false,
+        "p50": NaN,
+        "p90": NaN,
+        "p95": NaN,
+        "p99": NaN
+      }
+    ],
+    "time_matched": true,
+    "success_rates": {
+      "overall": {
+        "total": 10000,
+        "successful": 90,
+        "rate": 0.8999999999999999
+      },
+      "operations": [
+        {
+          "operation": "ISD-P Creation",
+          "count": 6361,
+          "sum": 90,
+          "rate": 1.414871875491275
+        },
+        {
+          "operation": "Key Establishment",
+          "count": 6361,
+          "sum": 90,
+          "rate": 1.414871875491275
+        },
+        {
+          "operation": "Profile Enabling",
+          "count": 90,
+          "sum": 90,
+          "rate": 100.0
+        },
+        {
+          "operation": "Profile Installation",
+          "count": 137,
+          "sum": 90,
+          "rate": 65.69343065693431
+        },
+        {
+          "operation": "Profile Preparation",
+          "count": 1321,
+          "sum": 90,
+          "rate": 6.813020439061317
+        },
+        {
+          "operation": "Registration",
+          "count": 6497,
+          "sum": 90,
+          "rate": 1.3852547329536709
+        }
+      ]
+    },
+    "operation_performance": {
+      "stats": [
+        {
+          "operation": "Profile Preparation",
+          "count": 1321,
+          "min": 10.036271810531616,
+          "max": 59.91954827308655,
+          "mean": 38.142114032316535,
+          "median": 40.58968234062195,
+          "std": 12.61530233310883,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 33.07447070820539,
+          "is_unstable": false
+        },
+        {
+          "operation": "Registration",
+          "count": 6497,
+          "min": 0.01820993423461914,
+          "max": 59.51853680610657,
+          "mean": 37.28973433915259,
+          "median": 50.956626892089844,
+          "std": 21.576734771304526,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 57.86239873704302,
+          "is_unstable": true
+        },
+        {
+          "operation": "Profile Installation",
+          "count": 137,
+          "min": 0.0479888916015625,
+          "max": 80.82853055000305,
+          "mean": 26.731211523069952,
+          "median": 20.317973136901855,
+          "std": 21.7999087243466,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 81.55226599263013,
+          "is_unstable": true
+        },
+        {
+          "operation": "Profile Enabling",
+          "count": 90,
+          "min": 10.04465126991272,
+          "max": 50.40774869918823,
+          "mean": 24.85506052970886,
+          "median": 20.130039930343628,
+          "std": 16.308516695749645,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 65.61447185476106,
+          "is_unstable": true
+        },
+        {
+          "operation": "ISD-P Creation",
+          "count": 6361,
+          "min": 0.0024542808532714844,
+          "max": 56.48472213745117,
+          "mean": 2.144184557489396,
+          "median": 0.6133537292480469,
+          "std": 6.999072071083864,
+          "is_bottleneck": false,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 326.4211584136678,
+          "is_unstable": true
+        },
+        {
+          "operation": "Key Establishment",
+          "count": 6361,
+          "min": 0.10001850128173828,
+          "max": 0.10341405868530273,
+          "mean": 0.1003029166555802,
+          "median": 0.10031461715698242,
+          "std": 0.00015922254600239403,
+          "is_bottleneck": false,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 0.15874169098106275,
+          "is_unstable": false
+        }
+      ],
+      "unstable_operations": [
+        "Registration",
+        "Profile Installation",
+        "Profile Enabling",
+        "ISD-P Creation"
+      ]
+    },
+    "bottlenecks": {
+      "threshold": 5.0,
+      "identified": [
+        {
+          "operation": "Profile Preparation",
+          "count": 1321,
+          "min": 10.036271810531616,
+          "max": 59.91954827308655,
+          "mean": 38.142114032316535,
+          "median": 40.58968234062195,
+          "std": 12.61530233310883,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 33.07447070820539,
+          "is_unstable": false,
+          "contribution": 29.507461324235546
+        },
+        {
+          "operation": "Registration",
+          "count": 6497,
+          "min": 0.01820993423461914,
+          "max": 59.51853680610657,
+          "mean": 37.28973433915259,
+          "median": 50.956626892089844,
+          "std": 21.576734771304526,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 57.86239873704302,
+          "is_unstable": true,
+          "contribution": 28.84804426076893
+        },
+        {
+          "operation": "Profile Installation",
+          "count": 137,
+          "min": 0.0479888916015625,
+          "max": 80.82853055000305,
+          "mean": 26.731211523069952,
+          "median": 20.317973136901855,
+          "std": 21.7999087243466,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 81.55226599263013,
+          "is_unstable": true,
+          "contribution": 20.679771171011854
+        },
+        {
+          "operation": "Profile Enabling",
+          "count": 90,
+          "min": 10.04465126991272,
+          "max": 50.40774869918823,
+          "mean": 24.85506052970886,
+          "median": 20.130039930343628,
+          "std": 16.308516695749645,
+          "is_bottleneck": true,
+          "p50": NaN,
+          "p90": NaN,
+          "p95": NaN,
+          "p99": NaN,
+          "cv": 65.61447185476106,
+          "is_unstable": true,
+          "contribution": 19.22834525298006
+        }
+      ],
+      "count": 4
+    },
+    "resource_usage": {
+      "high_cpu_periods": {
+        "count": 0,
+        "timestamps": []
+      },
+      "high_memory_periods": {
+        "count": 0,
+        "timestamps": []
+      },
+      "high_cpu_processes": [
+        {
+          "name": "python.exe",
+          "cpu_percent": 66.25352268107103
+        }
+      ],
+      "high_memory_processes": []
+    },
+    "anomalies": {
+      "count": 204,
+      "detected": [
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 288,
+          "time": 40.20015239715576,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4377150509253
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 287,
+          "time": 30.254221439361572,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.01656768469567
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 293,
+          "time": 30.370261430740356,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.033148327455516
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 295,
+          "time": 30.47038507461548,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.047454726061564
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 298,
+          "time": 30.268930673599243,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.018669447676414
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 294,
+          "time": 40.124512672424316,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.42690709377774
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 297,
+          "time": 40.225401163101196,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.441322779289409
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 292,
+          "time": 30.068061351776123,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 3.989967769686024
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 296,
+          "time": 30.168561220169067,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.004327926003128
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 300,
+          "time": 50.16787767410278,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.861976548893251
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 309,
+          "time": 40.343414545059204,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.45818539452987
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 311,
+          "time": 40.44228386878967,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.472312566698741
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 314,
+          "time": 50.487276554107666,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.9076145971586
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 308,
+          "time": 50.28956866264343,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.879364647462636
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 312,
+          "time": 50.387967109680176,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8934245373252105
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 310,
+          "time": 50.59387397766113,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.922846016758507
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 306,
+          "time": 30.19419002532959,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0079899571501425
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 307,
+          "time": 40.24280023574829,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.443808886057311
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 324,
+          "time": 30.196948289871216,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.008384078163583
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 337,
+          "time": 54.45369911193848,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 7.474366065204703
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 349,
+          "time": 30.212950706481934,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.010670620500961
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 340,
+          "time": 30.315780639648438,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.025363713516515
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 361,
+          "time": 30.162237405776978,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.003424333146313
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 364,
+          "time": 40.19631290435791,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.437166436109806
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 496,
+          "time": 40.2032585144043,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438158875677924
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 699,
+          "time": 30.15768575668335,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0027739602301065
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 701,
+          "time": 50.256742000579834,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.874674133871524
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 855,
+          "time": 50.31996178627014,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.883707439281409
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1008,
+          "time": 30.177236557006836,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.005567521587541
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1018,
+          "time": 40.208752393722534,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438943881340705
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1019,
+          "time": 50.268930435180664,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.876415706561395
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1057,
+          "time": 50.31690979003906,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8832713477356355
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1079,
+          "time": 39.303202629089355,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.309552307192505
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1081,
+          "time": 49.34457850456238,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.744337541406025
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1152,
+          "time": 40.21172547340393,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.439368696712613
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1222,
+          "time": 49.3888304233551,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.7506605792503205
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1293,
+          "time": 50.22324204444885,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.869887415099156
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1444,
+          "time": 30.14116644859314,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.00041356065726
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1535,
+          "time": 40.207072734832764,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438703879392421
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1533,
+          "time": 50.24260187149048,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.872653688797176
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1733,
+          "time": 40.18850350379944,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.436050571834999
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1900,
+          "time": 30.141363859176636,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000441768125419
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1897,
+          "time": 40.19917631149292,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.437575580666071
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1896,
+          "time": 50.23142194747925,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.871056219477247
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 1949,
+          "time": 50.292290687561035,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.879753590293516
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2226,
+          "time": 30.13856339454651,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000041617254655
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2306,
+          "time": 30.17808485031128,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.005688731939847
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2304,
+          "time": 40.22560477256775,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.441351872499322
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2418,
+          "time": 50.250635385513306,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.873801576043082
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2423,
+          "time": 40.260921478271484,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.446398181739528
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2429,
+          "time": 40.36141347885132,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4607572138459455
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2427,
+          "time": 50.40828227996826,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.896327317454284
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2425,
+          "time": 50.30763649940491,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.881946312138974
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2428,
+          "time": 50.508418798446655,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.910635555677821
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2424,
+          "time": 30.187032461166382,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.006967232027444
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2442,
+          "time": 30.258573532104492,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.017189543540804
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2445,
+          "time": 30.458839178085327,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.045804963911172
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2440,
+          "time": 30.160521507263184,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.003179153015469
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2443,
+          "time": 40.20125222206116,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.437872201952615
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2439,
+          "time": 50.25502920150757,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.874429396611557
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2444,
+          "time": 30.358980894088745,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.031536481865583
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2466,
+          "time": 30.206195831298828,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.009705434525267
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2470,
+          "time": 40.26079821586609,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.446380569105424
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2697,
+          "time": 30.143025398254395,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000679180982422
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2694,
+          "time": 40.18455934524536,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.435487001610663
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2699,
+          "time": 50.2301344871521,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.870872257728386
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2809,
+          "time": 50.214821577072144,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.868684237127621
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2850,
+          "time": 40.18623089790344,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.435725845281268
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2848,
+          "time": 50.21817135810852,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.869162878344566
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2905,
+          "time": 40.20873951911926,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438942041723217
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2900,
+          "time": 40.30986785888672,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4533919986273585
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 2906,
+          "time": 50.248607873916626,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.873511870355615
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3095,
+          "time": 50.25174379348755,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.873959953482055
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3177,
+          "time": 50.235233783721924,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8716008825218395
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3227,
+          "time": 30.16090679168701,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0032342052721654
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3226,
+          "time": 40.27265763282776,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.448075129348363
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3216,
+          "time": 50.31002616882324,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.882287765585056
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3263,
+          "time": 52.370644330978394,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 7.1767239612894755
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3268,
+          "time": 30.18246579170227,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.006314712890834
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3286,
+          "time": 30.204365253448486,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.009443868171978
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3280,
+          "time": 40.27002286911011,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.447698655036017
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3288,
+          "time": 50.322145223617554,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.884019424780682
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3461,
+          "time": 30.146191358566284,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.001131556549669
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3458,
+          "time": 30.249377489089966,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.015875545649074
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3460,
+          "time": 40.18423247337341,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.435440295766647
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3470,
+          "time": 40.26038885116577,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4463220760826845
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3472,
+          "time": 50.33037519454956,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.885195383226784
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3557,
+          "time": 30.191526889801025,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.007609428865923
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3738,
+          "time": 40.20563626289368,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438498625774479
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3737,
+          "time": 50.23967981338501,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.872236163761241
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3964,
+          "time": 30.10996389389038,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 3.995955111405638
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3954,
+          "time": 50.44762086868286,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.901948302757739
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3958,
+          "time": 50.246267557144165,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.873177468776573
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3957,
+          "time": 50.54901099205017,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.916435665217483
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3961,
+          "time": 50.346967935562134,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.887566275432714
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3962,
+          "time": 30.14023995399475,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000281176332061
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3960,
+          "time": 40.184919595718384,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4355384768333534
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3959,
+          "time": 40.2857768535614,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.449949699569262
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3956,
+          "time": 40.38627886772156,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.464310162489282
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3969,
+          "time": 30.172339916229248,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.004867853736037
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 3988,
+          "time": 40.196921586990356,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.43725340913663
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4075,
+          "time": 50.26322555541992,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.875600551611995
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4185,
+          "time": 30.143524408340454,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000750483193601
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4181,
+          "time": 40.20010161399841,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.437707794656317
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4286,
+          "time": 40.22320508956909,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.441008988239638
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4281,
+          "time": 50.25717091560364,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.874735420387488
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4358,
+          "time": 40.47553825378418,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.477064196470864
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4361,
+          "time": 40.37487721443176,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4626810108681605
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4366,
+          "time": 40.676074743270874,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.505718316942474
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4363,
+          "time": 40.57571315765381,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.491377919479876
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4357,
+          "time": 50.31316781044006,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.882736666319269
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4359,
+          "time": 30.205398559570312,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0095915145089345
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4362,
+          "time": 30.407126903533936,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.038415935866204
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4365,
+          "time": 40.2734010219574,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.448181350224836
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4356,
+          "time": 30.306644916534424,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.024058334573389
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4376,
+          "time": 50.26464104652405,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.875802807334771
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4377,
+          "time": 50.36539888381958,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.890199824135629
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4374,
+          "time": 30.24075698852539,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.014643785472484
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4375,
+          "time": 40.19607424736023,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.437132335052286
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4373,
+          "time": 30.157296419143677,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.002718328834571
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4392,
+          "time": 40.257049798965454,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.445844967880313
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4578,
+          "time": 40.23625349998474,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.44287344056435
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4581,
+          "time": 50.29667901992798,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.88038062732121
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4591,
+          "time": 30.17267870903015,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.004916262929581
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4629,
+          "time": 30.232648611068726,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.013485201191552
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4718,
+          "time": 30.13846468925476,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.000027513520575
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4863,
+          "time": 50.25233817100525,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8740448824894465
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4912,
+          "time": 30.161686658859253,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.003345638398189
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 4978,
+          "time": 50.293160915374756,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.879877934808951
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5099,
+          "time": 56.48472213745117,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 7.764573491307654
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5265,
+          "time": 50.22046899795532,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.869491181932303
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5311,
+          "time": 50.238497495651245,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.872067225555203
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5359,
+          "time": 50.21798825263977,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.869136714895839
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5404,
+          "time": 40.174715995788574,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.434080511839644
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5405,
+          "time": 50.21824312210083,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.869173132508715
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5441,
+          "time": 30.194562911987305,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0080432379233315
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5528,
+          "time": 40.252052783966064,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.445130957825796
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5620,
+          "time": 50.231990814208984,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8711375033166515
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5659,
+          "time": 40.22341513633728,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.441039001258295
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5667,
+          "time": 50.25840997695923,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.874912466537272
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5748,
+          "time": 40.20850157737732,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.438908042866667
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5746,
+          "time": 50.24647498130798,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8732071070583345
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5807,
+          "time": 30.173582792282104,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.00504544495767
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5819,
+          "time": 50.382213830947876,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.892602466776733
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5810,
+          "time": 50.28043341636658,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.878059336653492
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5812,
+          "time": 50.48300862312317,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.907004763961123
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5814,
+          "time": 30.17274832725525,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.004926210490815
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5817,
+          "time": 40.21602702140808,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.439983333355754
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5832,
+          "time": 30.479649782180786,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.048778535246567
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5829,
+          "time": 30.28096580505371,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0203891152913735
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5839,
+          "time": 40.42952108383179,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4704889266286845
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5838,
+          "time": 40.32944393157959,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.456189171085788
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5840,
+          "time": 40.229875802993774,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.441962148567675
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5833,
+          "time": 40.53734540939331,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.485895654961858
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5831,
+          "time": 50.285135984420776,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8787312739747035
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5828,
+          "time": 30.184776306152344,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0066448560960595
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5830,
+          "time": 30.381024837493896,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.034686281742989
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5848,
+          "time": 30.1639986038208,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.003675986005358
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 5945,
+          "time": 30.198086261749268,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.008546679909382
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 7791,
+          "time": 30.194341897964478,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.0080116578231095
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 7795,
+          "time": 40.25649881362915,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.445766239065198
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 7797,
+          "time": 50.29434370994568,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 6.8800469411489695
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 7829,
+          "time": 30.181790590286255,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.006218235173653
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 7827,
+          "time": 40.22524571418762,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.4413005676115835
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 8567,
+          "time": 30.17660355567932,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 4.005477073727684
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 8569,
+          "time": 40.24517488479614,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.444148193282989
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 8943,
+          "time": 40.232340574264526,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.442314333115773
+        },
+        {
+          "operation": "ISD-P Creation",
+          "client_id": 9463,
+          "time": 40.23373603820801,
+          "threshold": 23.139750240831315,
+          "mean": 2.144184557489396,
+          "deviation": 5.442513727211344
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 72,
+          "time": 0.10341405868530273,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 19.54111829551935
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 455,
+          "time": 0.1007990837097168,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.1164308818416133
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 687,
+          "time": 0.10123896598815918,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 5.879336450608519
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 1130,
+          "time": 0.10080742835998535,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.168843724609549
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 1405,
+          "time": 0.10143065452575684,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 7.083334324477675
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 1398,
+          "time": 0.10082411766052246,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.2736694101454207
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 1986,
+          "time": 0.10092997550964355,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.938563758401522
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 2046,
+          "time": 0.10079360008239746,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.0819881565941123
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 2472,
+          "time": 0.1011812686920166,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 5.516939080613076
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 2765,
+          "time": 0.10084962844848633,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.4339029580359677
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 2881,
+          "time": 0.10096478462219238,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.157200188233483
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 3210,
+          "time": 0.10092854499816895,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.9295786996413042
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 3823,
+          "time": 0.10097861289978027,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.244055756248919
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 3954,
+          "time": 0.10080337524414062,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.1433860581222657
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 3966,
+          "time": 0.10222434997558594,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 12.068544426605062
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 4792,
+          "time": 0.1009073257446289,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.79630032803141
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 5017,
+          "time": 0.10080623626708984,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.161356175642701
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 5018,
+          "time": 0.10164856910705566,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 8.452058275617485
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 5441,
+          "time": 0.10141229629516602,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 6.968026070388215
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 6239,
+          "time": 0.10079097747802734,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.065515548867047
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 6517,
+          "time": 0.10083246231079102,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.3260822529133565
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 7142,
+          "time": 0.10103392601013184,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.591478028310665
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 7160,
+          "time": 0.10160040855407715,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 8.149561297356827
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 7414,
+          "time": 0.10080194473266602,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.134400999362048
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 7912,
+          "time": 0.10114669799804688,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 5.299800160574485
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 8424,
+          "time": 0.10080575942993164,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.1583611560559617
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 8681,
+          "time": 0.10108733177185059,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.926920222025456
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 8738,
+          "time": 0.10120177268981934,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 5.645724922842862
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 8769,
+          "time": 0.10095548629760742,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.098797306292068
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 8842,
+          "time": 0.10121560096740723,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 5.7325804908582985
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9288,
+          "time": 0.10082817077636719,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.299127076632704
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9484,
+          "time": 0.10128211975097656,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 6.150385723208416
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9531,
+          "time": 0.10103321075439453,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.586985498930557
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9675,
+          "time": 0.10097765922546387,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.2380657170754406
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9910,
+          "time": 0.1009988784790039,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 4.371344088685335
+        },
+        {
+          "operation": "Key Establishment",
+          "client_id": 9998,
+          "time": 0.1008601188659668,
+          "threshold": 0.1007805467455279,
+          "mean": 0.1003029166555802,
+          "deviation": 3.4997933889442296
+        }
+      ]
+    },
+    "recommendations": [
+      {
+        "target": "System Reliability",
+        "impact": "critical",
+        "issue": "Low success rate (0.9%)",
+        "recommendation": "Improve error handling, implement retry mechanisms, and investigate causes of failures."
+      },
+      {
+        "target": "ISD-P Creation",
+        "impact": "high",
+        "issue": "Low success rate (1.4%)",
+        "recommendation": "Implement better error handling and retry mechanisms for this operation."
+      },
+      {
+        "target": "Key Establishment",
+        "impact": "high",
+        "issue": "Low success rate (1.4%)",
+        "recommendation": "Implement better error handling and retry mechanisms for this operation."
+      },
+      {
+        "target": "Profile Installation",
+        "impact": "high",
+        "issue": "Low success rate (65.7%)",
+        "recommendation": "Implement better error handling and retry mechanisms for this operation."
+      },
+      {
+        "target": "Profile Preparation",
+        "impact": "high",
+        "issue": "Low success rate (6.8%)",
+        "recommendation": "Implement better error handling and retry mechanisms for this operation."
+      },
+      {
+        "target": "Registration",
+        "impact": "high",
+        "issue": "Low success rate (1.4%)",
+        "recommendation": "Implement better error handling and retry mechanisms for this operation."
+      },
+      {
+        "target": "Profile Preparation",
+        "impact": "medium",
+        "issue": "Slow profile preparation (avg: 38.14s, 29.5% of total time)",
+        "recommendation": "Optimize profile preparation by implementing template caching, reducing cryptographic operations, and improving data serialization efficiency."
+      },
+      {
+        "target": "Registration",
+        "impact": "medium",
+        "issue": "Slow operation: Registration (avg: 37.29s, 28.8% of total time)",
+        "recommendation": "Profile this operation to identify specific bottlenecks and optimize accordingly."
+      },
+      {
+        "target": "Profile Installation",
+        "impact": "medium",
+        "issue": "Slow profile installation (avg: 26.73s, 20.7% of total time)",
+        "recommendation": "Optimize profile decryption and installation process, reduce I/O operations, and implement parallel processing where possible."
+      },
+      {
+        "target": "Profile Enabling",
+        "impact": "medium",
+        "issue": "Slow profile enabling (avg: 24.86s, 19.2% of total time)",
+        "recommendation": "Reduce command overhead, optimize PSK-TLS encryption/decryption, and implement more efficient error handling."
+      },
+      {
+        "target": "ISD-P Creation",
+        "impact": "medium",
+        "issue": "Highly variable performance in ISD-P Creation",
+        "recommendation": "Investigate causes of performance variability. Check for resource contention, network issues, or system load imbalances."
+      },
+      {
+        "target": "Process: python.exe",
+        "impact": "medium",
+        "issue": "High CPU usage (avg: 66.3%)",
+        "recommendation": "Profile this process to identify CPU-intensive operations and optimize accordingly."
+      },
+      {
+        "target": "ISD-P Creation",
+        "impact": "medium",
+        "issue": "Performance anomalies detected (168 instances)",
+        "recommendation": "Investigate specific conditions that lead to performance spikes in this operation."
+      },
+      {
+        "target": "Key Establishment",
+        "impact": "medium",
+        "issue": "Performance anomalies detected (36 instances)",
+        "recommendation": "Investigate specific conditions that lead to performance spikes in this operation."
+      },
+      {
+        "target": "System Scalability",
+        "impact": "medium",
+        "issue": "System tested with 10000 clients",
+        "recommendation": "Implement connection pooling, add load balancing, and consider distributed deployment for higher load scenarios."
+      }
+    ]
+  }
+}
