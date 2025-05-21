@@ -18,13 +18,14 @@ const tlsOptions = {
 };
 
 // Configuration
-const USE_TLS = true;
+const USE_TLS = false;
 const SM_DP_ENDPOINT = USE_TLS ? 'https://localhost:9001' : 'http://localhost:8001';
 const SM_SR_ENDPOINT = USE_TLS ? 'https://localhost:9002' : 'http://localhost:8002';
 const EUICC_ENDPOINT = USE_TLS ? 'https://localhost:9003' : 'http://localhost:8003';
 
 // Test options
 export const options = {
+  discardResponseBodies: true,
   scenarios: {
     // Basic infrastructure test
     infrastructure: {
@@ -76,7 +77,14 @@ export function infrastructureTest() {
     let smdpRes = http.get(`${SM_DP_ENDPOINT}/status`, { tags: { name: 'sm_dp_status' }, ...tlsOptions });
     let smdpCheck = check(smdpRes, {
       'SM-DP is up': (r) => r.status === 200,
-      'SM-DP returns valid JSON': (r) => r.json('status') === 'active'
+      'SM-DP returns valid JSON': (r) => {
+        try {
+          return r.body && r.json('status') === 'active';
+        } catch (e) {
+          console.log('SM-DP response error:', e.message);
+          return false;
+        }
+      }
     });
     operationFailRate.add(!smdpCheck);
     
@@ -84,7 +92,14 @@ export function infrastructureTest() {
     let smsrRes = http.get(`${SM_SR_ENDPOINT}/status`, { tags: { name: 'sm_sr_status' }, ...tlsOptions });
     let smsrCheck = check(smsrRes, {
       'SM-SR is up': (r) => r.status === 200,
-      'SM-SR returns valid JSON': (r) => r.json('status') === 'active'
+      'SM-SR returns valid JSON': (r) => {
+        try {
+          return r.body && r.json('status') === 'active';
+        } catch (e) {
+          console.log('SM-SR response error:', e.message);
+          return false;
+        }
+      }
     });
     operationFailRate.add(!smsrCheck);
     
@@ -92,7 +107,14 @@ export function infrastructureTest() {
     let euiccRes = http.get(`${EUICC_ENDPOINT}/status`, { tags: { name: 'euicc_status' }, ...tlsOptions });
     let euiccCheck = check(euiccRes, {
       'eUICC is up': (r) => r.status === 200,
-      'eUICC returns valid JSON': (r) => r.json('status') === 'active'
+      'eUICC returns valid JSON': (r) => {
+        try {
+          return r.body && r.json('status') === 'active';
+        } catch (e) {
+          console.log('eUICC response error:', e.message);
+          return false;
+        }
+      }
     });
     operationFailRate.add(!euiccCheck);
   });
@@ -349,7 +371,14 @@ export function provisioningCycle() {
   group('Final Status Check', function() {
     let euiccRes = http.get(`${EUICC_ENDPOINT}/status`, { tags: { name: 'euicc_final_status' }, ...tlsOptions });
     check(euiccRes, {
-      'eUICC has installed profiles': (r) => r.status === 200 && r.json('installedProfiles') > 0
+      'eUICC has installed profiles': (r) => {
+        try {
+          return r.status === 200 && r.body && r.json('installedProfiles') > 0;
+        } catch (e) {
+          console.log('eUICC final status error:', e.message);
+          return false;
+        }
+      }
     });
   });
 }

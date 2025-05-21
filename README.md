@@ -174,4 +174,82 @@ On average, a complete RSP process takes 30-60 seconds, with the following break
 - The PSK should be delivered securely to the eUICC
 - Additional security measures like secure storage of keys should be included
 - Key rotation and certificate revocation should be implemented
-- Timeouts and fallback mechanisms are implemented for process reliability 
+- Timeouts and fallback mechanisms are implemented for process reliability
+
+# TLS Load Testing with k6
+
+This project contains a load testing script for TLS-enabled API endpoints using Grafana k6. The script is designed to identify bottlenecks in the system by measuring response times of various operations.
+
+## Features
+
+- TLS support with self-signed certificates
+- Multiple test scenarios (infrastructure, performance, stress testing)
+- Bottleneck detection and reporting
+- Comprehensive metrics collection
+
+## Prerequisites
+
+- [k6](https://k6.io/docs/getting-started/installation/) installed on your system
+- Docker and Docker Compose for running the TLS proxy
+
+## Getting Started
+
+### 1. Start the TLS Proxy
+
+The TLS proxy provides HTTPS endpoints for your services. Start it with:
+
+```bash
+cd tls-proxy
+docker-compose up -d
+```
+
+### 2. Run the Load Test
+
+To run the load test script:
+
+```bash
+k6 run tls-benchmark.js
+```
+
+For saving the results to a JSON file:
+
+```bash
+k6 run --out json=results.json tls-benchmark.js
+```
+
+## Test Scenarios
+
+The script includes three test scenarios:
+
+1. **Infrastructure Test** - Verifies all services are responsive
+2. **Performance Test** - Simulates realistic user flows with ramping VUs
+3. **Stress Test** - Focuses on suspected bottleneck operations
+
+## Bottleneck Detection
+
+Operations that exceed the 5-second threshold are flagged as bottlenecks. The test generates a report showing:
+
+- Count of bottleneck occurrences by operation
+- Response time statistics
+- Failure rates
+
+## Customization
+
+Edit the script to adjust:
+
+- Endpoint URLs and paths
+- Bottleneck threshold (default: 5 seconds)
+- VU (Virtual User) counts and test durations
+- Test scenarios and stages
+
+## Analyzing Results
+
+After running the test, review:
+
+1. The summary output in the console
+2. The JSON results file if you used the `--out json` flag
+3. Import JSON results into Grafana for visualization
+
+## Troubleshooting
+
+If you encounter TLS issues, ensure your certificates are properly configured in the TLS proxy. 

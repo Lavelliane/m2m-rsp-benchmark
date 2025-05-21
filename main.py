@@ -34,7 +34,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Define constants for service endpoints
-USE_TLS_PROXY = True  # Set to True by default to use the TLS proxy
+USE_TLS_PROXY = False  # Set to True by default to use the TLS proxy
 SMDP_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9001' if USE_TLS_PROXY else '8001'}"
 SMSR_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9002' if USE_TLS_PROXY else '8002'}"
 EUICC_ENDPOINT = f"{'https' if USE_TLS_PROXY else 'http'}://localhost:{'9003' if USE_TLS_PROXY else '8003'}"
