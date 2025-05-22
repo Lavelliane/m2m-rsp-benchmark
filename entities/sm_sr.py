@@ -20,7 +20,7 @@ class SMSR:
         self.sm_sr_id = f"SMSR_{str(uuid.uuid4())[:8]}"  # Add SM-SR ID
         
         # Configure eUICC endpoint with TLS proxy settings
-        self.use_tls_proxy = False  # Set to True by default
+        self.use_tls_proxy = True  # Set to True by default
         self.euicc_host = "localhost"
         self.euicc_port = 9003 if self.use_tls_proxy else 8003
         self.euicc_protocol = "https" if self.use_tls_proxy else "http"
