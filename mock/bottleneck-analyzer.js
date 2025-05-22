@@ -18,22 +18,23 @@ export const options = {
     // Stress test with many parallel users
     stress_test: {
       executor: 'ramping-arrival-rate',
-      startRate: 1,
+      startRate: 5,
       timeUnit: '1s',
-      preAllocatedVUs: 10,
-      maxVUs: 100,
+      preAllocatedVUs: 100,
+      maxVUs: 1200,
       stages: [
-        { duration: '30s', target: 10 },    // Ramp up to 10 users over 30 seconds
-        { duration: '1m', target: 20 },     // Ramp up to 20 users over 1 minute
-        { duration: '2m', target: 20 },     // Stay at 20 users for 2 minutes
-        { duration: '30s', target: 0 },     // Ramp down to 0 users over 30 seconds
+        { duration: '1m', target: 100 },    // Ramp up to 100 users over 1 minute
+        { duration: '2m', target: 500 },    // Ramp up to 500 users over 2 minutes
+        { duration: '3m', target: 1000 },   // Ramp up to 1000 users over 3 minutes
+        { duration: '5m', target: 1000 },   // Stay at 1000 users for 5 minutes
+        { duration: '1m', target: 0 },      // Ramp down to 0 users over 1 minute
       ],
     },
   },
   thresholds: {
-    'successful_rsp_cycles': ['count>100'],           // Should have at least 100 successful cycles
-    'http_req_duration': ['p(95)<2000'],              // 95% of requests should be under 2 seconds
-    'rsp_processing_time': ['p(95)<10000', 'p(99)<15000'] // 95% of full RSP cycles should complete under 10 seconds
+    'successful_rsp_cycles': ['count>500'],           // Should have at least 500 successful cycles
+    'http_req_duration': ['p(95)<3000'],              // 95% of requests should be under 3 seconds
+    'rsp_processing_time': ['p(95)<15000', 'p(99)<20000'] // 95% of full RSP cycles should complete under 15 seconds
   },
 };
 
