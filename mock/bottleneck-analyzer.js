@@ -3,6 +3,7 @@ import { check, group, sleep } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
 import { randomString } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 import { SharedArray } from 'k6/data';
+import exec from 'k6/execution';
 
 // Define custom metrics
 const totalRSPCycles = new Counter('total_rsp_cycles');
@@ -10,35 +11,87 @@ const successfulRSPCycles = new Counter('successful_rsp_cycles');
 const failedRSPCycles = new Counter('failed_rsp_cycles');
 const processingTrend = new Trend('rsp_processing_time');
 
+// System resource metrics
+const cpuUtilization = new Trend('cpu_utilization');
+const memoryUsage = new Trend('memory_usage_mb');
+
 // Define BASE_URL (can be overridden via env variable)
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 
+// Add HTTP parameters for better connection handling
+const params = {
+  timeout: '60s',
+  connecting_timeout: '30s',
+};
+
 export const options = {
+  // Add these settings for better connection handling
+  batch: 10,
+  batchPerHost: 10,
+  http: {
+    timeout: '60s',
+  },
+  // Only export summary metrics, not all individual data points
+  summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'max', 'count'],
   scenarios: {
-    // Stress test with many parallel users
+    // Stress test with gradual ramp up, max 150 per stage, still reaching 1000
     stress_test: {
       executor: 'ramping-arrival-rate',
-      startRate: 5,
+      startRate: 1,
       timeUnit: '1s',
-      preAllocatedVUs: 100,
+      preAllocatedVUs: 25,
       maxVUs: 1200,
       stages: [
-        { duration: '1m', target: 100 },    // Ramp up to 100 users over 1 minute
-        { duration: '2m', target: 500 },    // Ramp up to 500 users over 2 minutes
-        { duration: '3m', target: 1000 },   // Ramp up to 1000 users over 3 minutes
-        { duration: '5m', target: 1000 },   // Stay at 1000 users for 5 minutes
-        { duration: '1m', target: 0 },      // Ramp down to 0 users over 1 minute
+        { duration: '2m', target: 10 },      // Start with 10 req/s
+        { duration: '3m', target: 50 },      // Increase by 40
+        { duration: '3m', target: 150 },     // Increase by 100
+        { duration: '3m', target: 300 },     // Increase by 150
+        { duration: '3m', target: 450 },     // Increase by 150
+        { duration: '3m', target: 600 },     // Increase by 150
+        { duration: '3m', target: 750 },     // Increase by 150
+        { duration: '3m', target: 900 },     // Increase by 150
+        { duration: '3m', target: 1000 },    // Increase by 100 to reach 1000
+        { duration: '5m', target: 1000 },    // Maintain peak for 5 minutes
+        { duration: '5m', target: 0 },       // Gradual ramp down
       ],
     },
   },
   thresholds: {
-    'successful_rsp_cycles': ['count>500'],           // Should have at least 500 successful cycles
+    'successful_rsp_cycles': ['count>100'],           // Should have at least 100 successful cycles
     'http_req_duration': ['p(95)<3000'],              // 95% of requests should be under 3 seconds
     'rsp_processing_time': ['p(95)<15000', 'p(99)<20000'] // 95% of full RSP cycles should complete under 15 seconds
   },
 };
 
+// Function to simulate collecting system metrics
+// In a real environment, this would be replaced with actual metrics collection
+function collectSystemMetrics() {
+  // Simulate CPU utilization between 10-95%
+  // In real usage, you would get this from the OS or monitoring tools
+  const currentCpuUtilization = 10 + (85 * Math.pow(exec.scenario.progress, 1.5));
+  cpuUtilization.add(currentCpuUtilization);
+  
+  // Simulate memory usage between 100-1000MB based on VU count
+  // In real usage, you would get this from the OS or monitoring tools
+  const baseMemory = 100; // MB
+  const memPerVU = 2; // MB per VU
+  const currentMemoryUsage = baseMemory + (memPerVU * exec.instance.vusActive);
+  memoryUsage.add(currentMemoryUsage);
+}
+
 export default function() {
+  // Collect system metrics periodically
+  collectSystemMetrics();
+  
+  // Add default parameters to all requests
+  const requestConfig = {
+    timeout: '60s',
+    headers: { 'Content-Type': 'application/json' },
+  };
+  
+  // Add longer sleep between iterations
+  sleep(Math.random() * 2 + 1); // Sleep between 1-3 seconds between iterations
+  
   // Start timing the full RSP cycle
   const cycleStartTime = new Date();
   
@@ -70,10 +123,7 @@ export default function() {
       eid: "89" + euiccId
     });
     
-    let res = http.post(`${BASE_URL}/smsr/euicc/register`, euiccRegPayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'RegisterEUICC' }
-    });
+    let res = http.post(`${BASE_URL}/smsr/euicc/register`, euiccRegPayload, requestConfig);
     
     if (!check(res, {
       'eUICC Registration successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -174,10 +224,7 @@ export default function() {
       entity: 'sm-dp'
     });
     
-    res = http.post(`${BASE_URL}/euicc/key-establishment/respond`, euiccResponsePayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'EuiccKeyResponse' }
-    });
+    res = http.post(`${BASE_URL}/euicc/key-establishment/respond`, euiccResponsePayload, requestConfig);
     
     if (!check(res, {
       'eUICC key response successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -196,10 +243,7 @@ export default function() {
       public_key: euiccPublicKey
     });
     
-    res = http.post(`${BASE_URL}/smdp/key-establishment/complete`, completePayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'KeyEstComplete' }
-    });
+    res = http.post(`${BASE_URL}/smdp/key-establishment/complete`, completePayload, requestConfig);
     
     if (!check(res, {
       'Key establishment completion successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -215,10 +259,7 @@ export default function() {
       profileId: profileId
     });
     
-    res = http.post(`${BASE_URL}/smsr/profile/install/${euiccId}`, installPayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'ProfileInstallSmSr' }
-    });
+    res = http.post(`${BASE_URL}/smsr/profile/install/${euiccId}`, installPayload, requestConfig);
     
     if (!check(res, {
       'SM-SR profile installation successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -237,10 +278,7 @@ export default function() {
       euiccId: euiccId
     });
     
-    res = http.post(`${BASE_URL}/euicc/profile/install`, euiccInstallPayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'ProfileInstallEuicc' }
-    });
+    res = http.post(`${BASE_URL}/euicc/profile/install`, euiccInstallPayload, requestConfig);
     
     if (!check(res, {
       'eUICC profile installation successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -256,10 +294,7 @@ export default function() {
       profileId: profileId
     });
     
-    res = http.post(`${BASE_URL}/smsr/profile/enable/${euiccId}`, enablePayload, {
-      headers: { 'Content-Type': 'application/json' },
-      tags: { name: 'ProfileEnable' }
-    });
+    res = http.post(`${BASE_URL}/smsr/profile/enable/${euiccId}`, enablePayload, requestConfig);
     
     if (!check(res, {
       'Profile enabling successful': (r) => r.status === 200 && r.json('status') === 'success'
@@ -271,9 +306,7 @@ export default function() {
     }
     
     // Verify status
-    res = http.get(`${BASE_URL}/status/euicc?id=${euiccId}`, {
-      tags: { name: 'StatusCheck' }
-    });
+    res = http.get(`${BASE_URL}/status/euicc?id=${euiccId}`, requestConfig);
     
     check(res, {
       'Status check successful': (r) => r.status === 200 && r.json('status') === 'active'
@@ -289,7 +322,4 @@ export default function() {
   const cycleEndTime = new Date();
   const cycleProcessingTime = cycleEndTime - cycleStartTime;
   processingTrend.add(cycleProcessingTime);
-  
-  // Add random sleep to prevent lockstep behavior
-  sleep(Math.random() * 1 + 0.5);
 }

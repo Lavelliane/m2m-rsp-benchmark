@@ -2,6 +2,7 @@ import http from 'k6/http';
 import { check, group, sleep } from 'k6';
 import { Rate, Trend } from 'k6/metrics';
 import { randomString } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
+import exec from 'k6/execution';
 
 // Custom metrics
 const errorRate = new Rate('error_rate');
@@ -15,10 +16,16 @@ const prepareProfileTrend = new Trend('prepare_profile');
 const installProfileTrend = new Trend('install_profile');
 const enableProfileTrend = new Trend('enable_profile');
 
+// System resource metrics
+const cpuUtilization = new Trend('cpu_utilization');
+const memoryUsage = new Trend('memory_usage_mb');
+
 // Configuration
 const BASE_URL = 'http://localhost:8080'; // Change to match your server
 
 export const options = {
+  // Only export summary metrics, not all individual data points
+  summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'max', 'count'],
   scenarios: {
     ramp_up_down: {
       executor: 'ramping-vus',
@@ -48,7 +55,26 @@ function tagWithOperation(params, operationName) {
   });
 }
 
+// Function to simulate collecting system metrics
+// In a real environment, this would be replaced with actual metrics collection
+function collectSystemMetrics() {
+  // Simulate CPU utilization between 10-90%
+  // In real usage, you would get this from the OS or monitoring tools
+  const currentCpuUtilization = 10 + (80 * Math.pow(exec.scenario.progress, 1.2));
+  cpuUtilization.add(currentCpuUtilization);
+  
+  // Simulate memory usage between 100-500MB based on VU count
+  // In real usage, you would get this from the OS or monitoring tools
+  const baseMemory = 100; // MB
+  const memPerVU = 5; // MB per VU
+  const currentMemoryUsage = baseMemory + (memPerVU * exec.instance.vusActive);
+  memoryUsage.add(currentMemoryUsage);
+}
+
 export default function() {
+  // Collect system metrics each iteration
+  collectSystemMetrics();
+  
   let euiccId = `EID_${randomString(8)}`;
   let profileId, sessionId, smsrId, psk, isdpAid;
   let success = true;
@@ -333,4 +359,3 @@ export default function() {
   // Add random pause between users to prevent exact synchronization
   sleep(Math.random() * 1 + 0.5); // Sleep between 0.5 and 1.5 seconds
 }
-  // Add random pause between users to prevent exact synchronization

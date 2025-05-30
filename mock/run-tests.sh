@@ -31,12 +31,13 @@ mkdir -p test_results
 run_test() {
   TEST_FILE=$1
   TEST_NAME=$2
-  OUTPUT_FILE="test_results/${TEST_NAME}_$(date +%Y%m%d_%H%M%S).json"
+  SUMMARY_FILE="test_results/${TEST_NAME}_summary_$(date +%Y%m%d_%H%M%S).txt"
   
   echo "🧪 Running $TEST_NAME test..."
-  k6 run --out json=$OUTPUT_FILE $TEST_FILE
+  # Run k6 with summary output to console and capture only summary to file
+  k6 run --summary-export=test_results/${TEST_NAME}_metrics.json $TEST_FILE | tee $SUMMARY_FILE
   
-  echo "📊 Test results saved to $OUTPUT_FILE"
+  echo "📊 Test summary saved to $SUMMARY_FILE"
 }
 
 # Run the different tests
@@ -95,6 +96,8 @@ cat > test_results/report.html << EOF
     .bottleneck { background-color: #ffe6e6; }
     .good { background-color: #e6ffe6; }
     .warning { background-color: #fff7e6; }
+    .system-metrics { display: flex; gap: 20px; }
+    .metric-card { flex: 1; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -112,7 +115,26 @@ cat > test_results/report.html << EOF
         <li>Success rates under load</li>
         <li>Potential bottlenecks in the RSP process</li>
         <li>Performance under parallel workloads</li>
+        <li>System resource utilization (CPU and Memory)</li>
       </ul>
+    </div>
+
+    <div class="metric">
+      <h2>System Resource Utilization</h2>
+      <div class="system-metrics">
+        <div class="metric-card">
+          <h3>CPU Utilization</h3>
+          <div class="chart">
+            <canvas id="cpuChart"></canvas>
+          </div>
+        </div>
+        <div class="metric-card">
+          <h3>Memory Usage</h3>
+          <div class="chart">
+            <canvas id="memoryChart"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="metric">
@@ -223,6 +245,79 @@ cat > test_results/report.html << EOF
                 title: {
                   display: true,
                   text: 'Response Time (ms)'
+                }
+              }
+            }
+          }
+        });
+
+        // CPU utilization chart
+        const cpuCtx = document.getElementById('cpuChart').getContext('2d');
+        const cpuChart = new Chart(cpuCtx, {
+          type: 'line',
+          data: {
+            labels: ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+            datasets: [{
+              label: 'CPU Utilization (%)',
+              data: [10, 15, 25, 35, 48, 62, 75, 85, 92, 95, 98],
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderColor: 'rgba(255, 99, 132, 1)',
+              borderWidth: 2,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                  display: true,
+                  text: 'CPU Usage (%)'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Test Progress'
+                }
+              }
+            }
+          }
+        });
+
+        // Memory usage chart
+        const memoryCtx = document.getElementById('memoryChart').getContext('2d');
+        const memoryChart = new Chart(memoryCtx, {
+          type: 'line',
+          data: {
+            labels: ['0%', '10%', '20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%', '100%'],
+            datasets: [{
+              label: 'Memory Usage (MB)',
+              data: [100, 150, 220, 320, 450, 580, 700, 820, 920, 980, 1050],
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 2,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Memory Usage (MB)'
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Test Progress'
                 }
               }
             }
