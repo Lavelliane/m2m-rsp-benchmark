@@ -10,6 +10,10 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 import hmac
+import psutil
+from collections import defaultdict
+import functools
+import tracemalloc
 
 # Simple in-memory storage for the mock server
 db = {
@@ -19,6 +23,39 @@ db = {
     "sessions": {},      # Key establishment sessions
     "shared_secrets": {} # Shared secrets from ECDH
 }
+
+# Metrics collection
+process = psutil.Process(os.getpid())
+operation_metrics = defaultdict(list)
+
+def record_metrics(operation: str, *, cpu_pct: float, mem_mb: float):
+    """Store one sample for *operation* (CPU% and MB)."""
+    operation_metrics[operation].append({
+        "timestamp": time.time(),
+        "cpu_percent": cpu_pct,
+        "memory_mb": mem_mb,
+    })
+
+def with_metrics(operation: str):
+    """Decorator that measures CPU delta and Python heap allocations for the handler."""
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(request, *args, **kwargs):
+            # reset CPU timer & start tracemalloc
+            _ = process.cpu_percent(interval=None)
+            tracemalloc.start()
+            try:
+                return func(request, *args, **kwargs)
+            finally:
+                # Gather stats
+                cpu_pct = process.cpu_percent(interval=None)
+                snapshot = tracemalloc.take_snapshot()
+                mem_bytes = sum(stat.size for stat in snapshot.statistics('filename'))
+                tracemalloc.stop()
+
+                record_metrics(operation, cpu_pct=cpu_pct, mem_mb=mem_bytes / (1024 * 1024))
+        return wrapper
+    return decorator
 
 # ECDH implementation
 class ECDH:
@@ -148,6 +185,7 @@ class M2M_RSP_Server:
     def setup_routes(self):
         # SM-DP Endpoints
         @self.app.route('/smdp/profile/prepare', methods=['POST'])
+        @with_metrics("prepare_profile")
         def prepare_profile(request):
             """SM-DP: Prepare a profile"""
             request.setHeader('Content-Type', 'application/json')
@@ -189,6 +227,7 @@ class M2M_RSP_Server:
                 })
         
         @self.app.route('/smdp/key-establishment/init', methods=['POST'])
+        @with_metrics("key_establishment")
         def smdp_init_key_establishment(request):
             """SM-DP: Initialize key establishment"""
             request.setHeader('Content-Type', 'application/json')
@@ -219,6 +258,7 @@ class M2M_RSP_Server:
             })
             
         @self.app.route('/smdp/key-establishment/complete', methods=['POST'])
+        @with_metrics("key_establishment")
         def smdp_complete_key_establishment(request):
             """SM-DP: Complete key establishment"""
             request.setHeader('Content-Type', 'application/json')
@@ -263,6 +303,7 @@ class M2M_RSP_Server:
         
         # SM-SR Endpoints
         @self.app.route('/smsr/euicc/register', methods=['POST'])
+        @with_metrics("register_euicc")
         def register_euicc(request):
             """SM-SR: Register eUICC"""
             request.setHeader('Content-Type', 'application/json')
@@ -299,6 +340,7 @@ class M2M_RSP_Server:
                 return json.dumps({"status": "error", "message": str(e)})
         
         @self.app.route('/smsr/isdp/create', methods=['POST'])
+        @with_metrics("create_isdp")
         def create_isdp(request):
             """SM-SR: Create ISD-P on eUICC"""
             request.setHeader('Content-Type', 'application/json')
@@ -346,6 +388,7 @@ class M2M_RSP_Server:
                 return json.dumps({"status": "error", "message": str(e)})
         
         @self.app.route('/smsr/profile/install/<string:euicc_id>', methods=['POST'])
+        @with_metrics("install_profile")
         def install_profile(request, euicc_id):
             """SM-SR: Handle profile installation to eUICC"""
             request.setHeader('Content-Type', 'application/json')
@@ -415,6 +458,7 @@ class M2M_RSP_Server:
                 return json.dumps({"status": "error", "message": str(e)})
         
         @self.app.route('/smsr/profile/enable/<string:euicc_id>', methods=['POST'])
+        @with_metrics("enable_profile")
         def enable_profile(request, euicc_id):
             """SM-SR: Enable profile on eUICC"""
             request.setHeader('Content-Type', 'application/json')
@@ -445,6 +489,7 @@ class M2M_RSP_Server:
         
         # eUICC Endpoints
         @self.app.route('/euicc/profile/install', methods=['POST'])
+        @with_metrics("install_profile")
         def euicc_install_profile(request):
             """eUICC: Receive and install encrypted profile"""
             request.setHeader('Content-Type', 'application/json')
@@ -489,6 +534,7 @@ class M2M_RSP_Server:
                 return json.dumps({"status": "error", "message": str(e)})
         
         @self.app.route('/euicc/key-establishment/respond', methods=['POST'])
+        @with_metrics("key_establishment")
         def euicc_respond_to_key_establishment(request):
             """eUICC: Respond to key establishment request"""
             request.setHeader('Content-Type', 'application/json')
@@ -545,6 +591,7 @@ class M2M_RSP_Server:
         
         # Status endpoint for each entity type
         @self.app.route('/status/<string:entity_type>', methods=['GET'])
+        @with_metrics("status_verification")
         def status(request, entity_type):
             request.setHeader('Content-Type', 'application/json')
             
@@ -586,6 +633,14 @@ class M2M_RSP_Server:
                     "status": "error",
                     "message": f"Unknown entity type: {entity_type}"
                 })
+
+        # Metrics endpoint
+        @self.app.route('/metrics', methods=['GET'])
+        @with_metrics("get_metrics")
+        def get_metrics(request):
+            """Return collected CPU and memory usage metrics"""
+            request.setHeader('Content-Type', 'application/json')
+            return json.dumps(operation_metrics)
 
     def run(self):
         """Run the M2M RSP Mock Server"""

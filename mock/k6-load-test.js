@@ -7,6 +7,7 @@ import exec from 'k6/execution';
 // Custom metrics
 const errorRate = new Rate('error_rate');
 const rspSuccessRate = new Rate('rsp_success_rate');
+const failureRate = new Rate('failure_rate');
 
 // Create trends for each operation to track performance metrics
 const registerEuiccTrend = new Trend('register_euicc');
@@ -26,21 +27,25 @@ const BASE_URL = 'http://localhost:8080'; // Change to match your server
 export const options = {
   // Only export summary metrics, not all individual data points
   summaryTrendStats: ['avg', 'min', 'med', 'p(90)', 'p(95)', 'max', 'count'],
+  tags: { bucket: '' }, // declare custom tag so k6 indexes it
   scenarios: {
     ramp_up_down: {
       executor: 'ramping-vus',
-      startVUs: 1,
+      startVUs: 5,
       stages: [
-        { duration: '30s', target: 10 },    // Ramp up to 10 users over 30 seconds
-        { duration: '1m', target: 20 },     // Ramp up to 20 users over 1 minute
-        { duration: '2m', target: 20 },     // Stay at 20 users for 2 minutes
-        { duration: '30s', target: 0 },     // Ramp down to 0 users over 30 seconds
+        { duration: '1m', target: 50 },
+        { duration: '1m', target: 100 },
+        { duration: '2m', target: 200 },
+        { duration: '2m', target: 400 },
+        { duration: '2m', target: 400 }, // sustain peak load
+        { duration: '1m', target: 0 },
       ],
     },
   },
   thresholds: {
     'error_rate': ['rate<0.1'],            // Error rate should be less than 10%
     'rsp_success_rate': ['rate>0.9'],      // RSP success rate should be greater than 90%
+    'failure_rate{bucket:*}': ['rate<0.2'], // Failure rate per VU bucket should be <20%
     'http_req_duration{operation:register_euicc}': ['p(95)<500'],     // 95% of registration requests should be below 500ms
     'http_req_duration{operation:key_establishment}': ['p(95)<800'],  // 95% of key establishment should be below 800ms
     'http_req_duration{operation:prepare_profile}': ['p(95)<1000'],   // 95% of profile preparation should be below 1000ms
@@ -355,6 +360,11 @@ export default function() {
   
   // Record overall success rate
   rspSuccessRate.add(success ? 1 : 0);
+  
+  // Use a smaller bucket size to capture failure rate trends as load increases with reduced VUs
+  const bucketSize = 50; // group active VUs in increments of 50
+  const bucket = Math.ceil(exec.vusActive / bucketSize) * bucketSize;
+  failureRate.add(success ? 0 : 1, { bucket: String(bucket) });
   
   // Add random pause between users to prevent exact synchronization
   sleep(Math.random() * 1 + 0.5); // Sleep between 0.5 and 1.5 seconds

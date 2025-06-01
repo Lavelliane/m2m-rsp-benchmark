@@ -3,6 +3,7 @@ import { check, group, sleep } from 'k6';
 import { Counter, Rate, Trend } from 'k6/metrics';
 import { randomString } from 'https://jslib.k6.io/k6-utils/1.2.0/index.js';
 import { SharedArray } from 'k6/data';
+import exec from 'k6/execution';
 
 // Define custom metrics
 const totalRSPCycles = new Counter('total_rsp_cycles');
@@ -10,30 +11,34 @@ const successfulRSPCycles = new Counter('successful_rsp_cycles');
 const failedRSPCycles = new Counter('failed_rsp_cycles');
 const processingTrend = new Trend('rsp_processing_time');
 
+// Track per-iteration failures; will be tagged with current active VUs
+const failureRate = new Rate('failure_rate');
+
 // Define BASE_URL (can be overridden via env variable)
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
 
 export const options = {
   scenarios: {
-    // Stress test with many parallel users
+    // Heavier stress test with more arrivals & higher VU ceiling
     stress_test: {
       executor: 'ramping-arrival-rate',
-      startRate: 1,
+      startRate: 5,
       timeUnit: '1s',
-      preAllocatedVUs: 10,
-      maxVUs: 100,
+      preAllocatedVUs: 50,
+      maxVUs: 300,
       stages: [
-        { duration: '30s', target: 10 },    // Ramp up to 10 users over 30 seconds
-        { duration: '1m', target: 20 },     // Ramp up to 20 users over 1 minute
-        { duration: '2m', target: 20 },     // Stay at 20 users for 2 minutes
-        { duration: '30s', target: 0 },     // Ramp down to 0 users over 30 seconds
+        { duration: '30s', target: 50 },
+        { duration: '30s', target: 100 },
+        { duration: '30s', target: 150 },
+        { duration: '30s', target: 0 },
       ],
     },
   },
   thresholds: {
     'successful_rsp_cycles': ['count>100'],           // Should have at least 100 successful cycles
     'http_req_duration': ['p(95)<2000'],              // 95% of requests should be under 2 seconds
-    'rsp_processing_time': ['p(95)<10000', 'p(99)<15000'] // 95% of full RSP cycles should complete under 10 seconds
+    'rsp_processing_time': ['p(95)<10000', 'p(99)<15000'], // 95% of full RSP cycles should complete under 10 seconds
+    'failure_rate{bucket:*}': ['rate<0.2']               // failure rate per VU bucket should stay below 20%
   },
 };
 
@@ -279,10 +284,13 @@ export default function() {
     });
   });
   
-  // If the whole cycle was successful, increment counter
+  // Record success / failure metrics
   if (success) {
     successfulRSPCycles.add(1);
   }
+  // Add to failure rate metric tagged by current active VUs (rounded to nearest 10)
+  const vuBucket = Math.ceil(exec.vusActive / 10) * 10; // 1-10→10, 11-20→20, etc.
+  failureRate.add(success ? 0 : 1, { bucket: vuBucket });
   
   // Calculate and record the total processing time for the RSP cycle
   const cycleEndTime = new Date();
