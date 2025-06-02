@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 
 def fetch_metrics(base_url: str) -> Dict[str, List[dict]]:
     """Fetch JSON metrics from the running mock server."""
-    resp = requests.get(base_url.rstrip('/') + '/metrics', timeout=10)
+    resp = requests.get(base_url.rstrip('/') + '/metrics', timeout=60)
     resp.raise_for_status()
     return resp.json()
 
