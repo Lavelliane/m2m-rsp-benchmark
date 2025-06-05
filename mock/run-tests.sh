@@ -17,7 +17,7 @@ else
   sleep 5
 fi
 
-# Check if k6 is installed
+# Check if k6 is in system
 if ! command -v k6 &> /dev/null; then
   echo "❌ k6 is not installed. Please install k6 first."
   echo "   Visit: https://k6.io/docs/getting-started/installation/"
