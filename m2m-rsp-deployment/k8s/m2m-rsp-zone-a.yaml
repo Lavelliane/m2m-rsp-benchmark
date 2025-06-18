@@ -5,6 +5,7 @@ metadata:
   labels:
     zone: zone-a
     app: m2m-rsp
+    istio-injection: enabled
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -12,9 +13,11 @@ metadata:
   name: m2m-rsp-config
   namespace: m2m-rsp-zone-a
 data:
-  ZONE_NAME: "zone-a"
-  ZONE_REGION: "us-east-1"
+  ZONE_NAME: "zone-a-seoul"
+  ZONE_REGION: "ap-northeast-2"
+  ZONE_LOCATION: "Seoul, South Korea"
   LOG_LEVEL: "INFO"
+  LATENCY_SIMULATION: "local"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -24,17 +27,22 @@ metadata:
   labels:
     app: m2m-rsp
     zone: zone-a
+    version: v1
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: m2m-rsp
       zone: zone-a
+      version: v1
   template:
     metadata:
       labels:
         app: m2m-rsp
         zone: zone-a
+        version: v1
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
       - name: m2m-rsp-mock
@@ -55,6 +63,11 @@ spec:
             configMapKeyRef:
               name: m2m-rsp-config
               key: ZONE_REGION
+        - name: ZONE_LOCATION
+          valueFrom:
+            configMapKeyRef:
+              name: m2m-rsp-config
+              key: ZONE_LOCATION
         - name: POD_NAME
           valueFrom:
             fieldRef:
@@ -94,7 +107,7 @@ metadata:
     app: m2m-rsp
     zone: zone-a
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
   - port: 80
     targetPort: 8080

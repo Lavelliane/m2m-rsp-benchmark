@@ -1,0 +1,205 @@
+# Destination Rules for each zone with circuit breaker and load balancing
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: m2m-rsp-zone-a-dr
+  namespace: m2m-rsp-zone-a
+spec:
+  host: m2m-rsp-service.m2m-rsp-zone-a.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: m2m-rsp-zone-b-dr
+  namespace: m2m-rsp-zone-b
+spec:
+  host: m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: v2
+    labels:
+      version: v2
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: m2m-rsp-zone-c-dr
+  namespace: m2m-rsp-zone-c
+spec:
+  host: m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 50
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      consecutiveGatewayErrors: 3
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+    loadBalancer:
+      simple: LEAST_CONN
+  subsets:
+  - name: v3
+    labels:
+      version: v3
+---
+# EnvoyFilter to simulate latency for Seoul to US East (Virginia) - ~180ms RTT
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: latency-simulation-zone-b
+  namespace: m2m-rsp-zone-b
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.fault
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.fault.v3.HTTPFault
+          delay:
+            fixed_delay: 180ms
+            percentage:
+              numerator: 100
+---
+# EnvoyFilter to simulate latency for Seoul to EU West (Ireland) - ~280ms RTT
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: latency-simulation-zone-c
+  namespace: m2m-rsp-zone-c
+spec:
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+    patch:
+      operation: INSERT_BEFORE
+      value:
+        name: envoy.filters.http.fault
+        typed_config:
+          "@type": type.googleapis.com/envoy.extensions.filters.http.fault.v3.HTTPFault
+          delay:
+            fixed_delay: 280ms
+            percentage:
+              numerator: 100
+---
+# Virtual Service for cross-zone communication with latency-aware routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: m2m-rsp-cross-zone-vs
+  namespace: istio-system
+spec:
+  hosts:
+  - m2m-rsp-service.m2m-rsp-zone-a.svc.cluster.local
+  - m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+  - m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+  http:
+  # Prefer local zone (Seoul) for better performance
+  - match:
+    - headers:
+        "x-preferred-zone":
+          exact: "seoul"
+    route:
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-a.svc.cluster.local
+        subset: v1
+      weight: 100
+  # Fallback to remote zones with geographic preference
+  - match:
+    - headers:
+        "x-fallback-region":
+          exact: "americas"
+    route:
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+        subset: v2
+      weight: 80
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+        subset: v3
+      weight: 20
+  - match:
+    - headers:
+        "x-fallback-region":
+          exact: "europe"
+    route:
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+        subset: v3
+      weight: 80
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+        subset: v2
+      weight: 20
+  # Default routing with Seoul preference
+  - route:
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-a.svc.cluster.local
+        subset: v1
+      weight: 70
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+        subset: v2
+      weight: 20
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+        subset: v3
+      weight: 10
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,gateway-error,connect-failure,refused-stream 

@@ -1,0 +1,52 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: m2m-rsp-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: m2m-rsp-external-vs
+  namespace: istio-system
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - m2m-rsp-gateway
+  http:
+  # Route traffic with geographic preference (Seoul first)
+  - route:
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-a.svc.cluster.local
+        port:
+          number: 80
+        subset: v1
+      weight: 70  # Prefer Seoul zone for Korean users
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-b.svc.cluster.local
+        port:
+          number: 80
+        subset: v2
+      weight: 20  # US East fallback
+    - destination:
+        host: m2m-rsp-service.m2m-rsp-zone-c.svc.cluster.local
+        port:
+          number: 80
+        subset: v3
+      weight: 10  # EU fallback
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+      retryOn: 5xx,gateway-error,connect-failure,refused-stream 

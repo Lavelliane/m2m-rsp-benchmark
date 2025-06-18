@@ -1,0 +1,5 @@
+zone,location,total_requests,success_rate_percent,avg_response_time_ms,median_response_time_ms,p95_response_time_ms,min_response_time_ms,max_response_time_ms,expected_latency
+Seoul,South Korea (Local),4020,18.66,11.53,10.40,21.36,1.10,39.48,<10ms
+Virginia,USA (Far),3000,25.00,431.02,369.22,907.44,180.03,932.04,~180ms
+Ireland,Europe (Far),3000,25.00,668.71,577.33,1416.49,281.77,1436.35,~280ms
+Gateway,Load Balanced,4020,18.66,95.19,26.28,301.69,2.15,500.79,Mixed
