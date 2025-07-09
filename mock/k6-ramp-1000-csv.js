@@ -46,7 +46,6 @@ export const options = {
         { duration: '1m', target: 900 },   // Ramp to 900 VUs over 1 minute
         { duration: '1m', target: 1000 },  // Ramp to 1000 VUs over 1 minute
         { duration: '2m', target: 1000 },  // Hold 1000 VUs for 2 minutes
-        { duration: '2m', target: 2000 },  // Hold 1000 VUs for 2 minutes
         { duration: '1m', target: 0 },     // Ramp down to 0 over 1 minute
       ],
       gracefulRampDown: '30s',

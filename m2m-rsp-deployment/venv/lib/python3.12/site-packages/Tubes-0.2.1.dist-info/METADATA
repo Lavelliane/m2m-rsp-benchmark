@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: Tubes
+Version: 0.2.1
+Summary: Flow control and backpressure for event-driven applications.
+Home-page: https://github.com/twisted/tubes/
+License: MIT
+Platform: UNKNOWN
+License-File: LICENSE
+Requires-Dist: six
+Requires-Dist: Twisted
+
+UNKNOWN
+
