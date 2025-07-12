@@ -1,0 +1,5 @@
+timestamp,vus,iterations,cpu_percent,mem_percent,memory_mb
+2025-07-12T08:44:19.868Z,6,98,59.00,71.90,46.58" source=console
+2025-07-12T08:44:26.204Z,6,136,55.60,70.70,47.48" source=console
+2025-07-12T08:44:31.378Z,7,171,52.20,70.60,48.17" source=console
+2025-07-12T08:44:36.493Z,6,206,57.30,70.50,87.19" source=console
