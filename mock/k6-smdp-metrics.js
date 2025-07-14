@@ -6,7 +6,7 @@ import exec from 'k6/execution';
 
 // Configuration
 const SMDP_BASE_URL = 'http://localhost:8081'; // SM-DP server port
-const METRICS_INTERVAL = 5000; // 5 seconds in milliseconds
+const METRICS_INTERVAL = 2000; // 5 seconds in milliseconds
 
 // Custom metrics
 const errorRate = new Rate('error_rate');
@@ -25,10 +25,13 @@ const memoryPercent = new Trend('memory_percent');
 // Start small for testing
 export const options = {
   stages: [
-    { duration: '10s', target: 2 },  // Ramp up to 2 VUs
-    { duration: '20s', target: 5 },  // Ramp up to 5 VUs
-    { duration: '20s', target: 8 },  // Ramp up to 8 VUs
-    { duration: '10s', target: 0 },  // Ramp down
+    { duration: '60s', target: 50 },   // Ramp up to 50 VUs in first minute
+    { duration: '60s', target: 150 },  // Ramp up to 150 VUs in second minute
+    { duration: '60s', target: 250 },  // Ramp up to 250 VUs in third minute
+    { duration: '60s', target: 350 },  // Ramp up to 350 VUs in fourth minute
+    { duration: '60s', target: 500 },  // Ramp up to 500 VUs in fifth minute
+    { duration: '60s', target: 500 },  // Maintain 500 VUs for sixth minute
+    { duration: '30s', target: 0 },    // Ramp down over 30 seconds
   ],
   thresholds: {
     'error_rate': ['rate<0.1'],
